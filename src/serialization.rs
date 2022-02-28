@@ -1,4 +1,4 @@
-// This file corresponds to serialization.c of the c libagent
+// This file contains the same functionality as serialization.c used in libagent.a
 
 pub fn serialize_agent_info(info: AgentInfo, buffer: String) {
     unimplemented!("");
