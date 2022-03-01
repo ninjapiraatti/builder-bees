@@ -2,23 +2,54 @@
 
 use std::net::TcpStream;
 use std::io::Result;
-use std::io::Write;
-use crate::common::{ AgentInfo, Command, ThinkFunction };
+use std::io::{ Read, Write };
+use fixed_buffer::{ deframe_line, FixedBuf, ReadWriteChain };
+use crate::common::{ AgentInfo, Command, ThinkFunction, MAX_COMMAND_LEN, NET_BUFFER_SIZE };
+use crate::serialization::serialize_agent_command;
 
-fn connect_to_arena(host: &String, port: i32) -> i32 {
-    unimplemented!("Establishes TCP connection to arena, returns socket");
+fn send_team_name(stream: &mut TcpStream, team_name: &String) -> Result<()> {
+    let message = team_name.clone().into_bytes();
+    stream.write(&message).expect("Agent unable to send team name to arena.");
+    stream.flush()?;
+    Ok(())
 }
 
-fn send_team_name(socket: i32, name: String) {
-    unimplemented!("Sends the team name to arena at beginning of game");
+fn get_line_from_arena(stream: &mut TcpStream) -> Result<String> {
+    unimplemented!("");
+    let mut line = String::new();
+    stream.read_to_string(&mut line);
+    Ok(line)
 }
 
-fn close_socket(socket: i32) {
-    unimplemented!("closes socket connection");
+fn get_agent_info(stream: &mut TcpStream) -> Result<AgentInfo> {
+    let line = get_line_from_arena(stream).unwrap();
+    let info: AgentInfo = AgentInfo::new();
+    Ok(info)
 }
 
-fn send_agent_command(command: Command, socket: i32) {
-    unimplemented!("sends agent command to arena");
+fn send_agent_command(command: Command, stream: &mut TcpStream) -> Result<()> {
+    let mut buffer: FixedBuf<MAX_COMMAND_LEN> = FixedBuf::new();
+    serialize_agent_command(command, &mut buffer);
+    // buffer has to be newline terminated
+    let bytes_sent = stream
+        .write(&buffer.read_bytes(buffer.len()))
+        .expect("Agent unable to send command to arena.");
+    stream.flush()?;
+    Ok(())
+}
+
+fn think(info: &AgentInfo) -> Command {
+    let command: Command = Command::new();
+    command
+}
+
+fn run(stream: &mut TcpStream, think_function: ThinkFunction) -> Result<()> {
+    loop {
+        let info: AgentInfo = get_agent_info(stream).expect("Game over.");
+        let command: Command = think_function(info);
+        send_agent_command(command, stream);
+    }
+    Ok(())
 }
 
 pub fn agent_main(host: &String, port: &String, team_name: &String, think: ThinkFunction) -> Result<()> {
@@ -26,9 +57,8 @@ pub fn agent_main(host: &String, port: &String, team_name: &String, think: Think
     println!("addr: {}", addr);
 
     let mut stream = TcpStream::connect(addr).expect("Agent unable to connect to arena.");
-    let message = team_name.clone().into_bytes();
-    stream.write(&message).expect("Agent unable to send message.");
-    stream.flush()?;
+    send_team_name(&mut stream, team_name);
+    run(&mut stream, think);
 
     Ok(())
 }

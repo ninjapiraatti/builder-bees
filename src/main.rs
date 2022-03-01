@@ -1,5 +1,6 @@
 mod agent;
 mod common;
+mod serialization;
 
 use std::env;
 use crate::common::{ AgentInfo, Command };

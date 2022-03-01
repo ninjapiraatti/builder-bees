@@ -9,6 +9,9 @@ pub const TURNS_BEFORE_TIMEOUT: i32 = 1000;
 pub const VIEW_DISTANCE: i32 = 3;
 pub const VIEW_SIZE: i32 = VIEW_DISTANCE * 2 + 1;
 
+pub const MAX_COMMAND_LEN: usize = 10;
+pub const NET_BUFFER_SIZE: usize = 200;
+
 pub type ThinkFunction = fn(AgentInfo) -> Command;
 
 pub struct AgentInfo {
@@ -19,9 +22,30 @@ pub struct AgentInfo {
     col: i32,
 }
 
+impl AgentInfo {
+    pub fn new() -> Self {
+        Self {
+            turn: 0,
+            player: 0,
+            bee: 0,
+            row: 0,
+            col: 0,
+        }
+    }
+}
+
 pub struct Command {
     action: Action,
     direction: Direction,
+}
+
+impl Command {
+    pub fn new() -> Self {
+        Self {
+            action: Action::MOVE,
+            direction: Direction::N,
+        }
+    }
 }
 
 pub struct Coords {
