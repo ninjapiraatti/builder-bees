@@ -1,3 +1,6 @@
+#![allow(unused)]
+#![allow(non_camel_case_types)]
+
 pub const NUM_ROWS: i32 = 25;
 pub const NUM_COLS: i32 = 30;
 

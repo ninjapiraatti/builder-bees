@@ -5,25 +5,27 @@ use std::io::Result;
 use std::io::{ Read, Write };
 use fixed_buffer::{ deframe_line, FixedBuf, ReadWriteChain };
 use crate::common::{ AgentInfo, Command, ThinkFunction, MAX_COMMAND_LEN, NET_BUFFER_SIZE };
-use crate::serialization::serialize_agent_command;
+use crate::serialization::{ deserialize_agent_info, serialize_agent_command };
 
 fn send_team_name(stream: &mut TcpStream, team_name: &String) -> Result<()> {
     let message = team_name.clone().into_bytes();
+    //TODO: Check team name length
+    //TODO: terminate team name with newline here instead of in main
     stream.write(&message).expect("Agent unable to send team name to arena.");
     stream.flush()?;
     Ok(())
 }
 
 fn get_line_from_arena(stream: &mut TcpStream) -> Result<String> {
-    unimplemented!("");
     let mut line = String::new();
-    stream.read_to_string(&mut line);
+    stream.read_to_string(&mut line)?;
     Ok(line)
 }
 
 fn get_agent_info(stream: &mut TcpStream) -> Result<AgentInfo> {
     let line = get_line_from_arena(stream).unwrap();
-    let info: AgentInfo = AgentInfo::new();
+    //TODO: check that string isn't gameover
+    let info: AgentInfo = deserialize_agent_info(line);
     Ok(info)
 }
 
@@ -43,12 +45,14 @@ fn think(info: &AgentInfo) -> Command {
     command
 }
 
-fn run(stream: &mut TcpStream, think_function: ThinkFunction) -> Result<()> {
+#[allow(unreachable_code)]
+fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
     loop {
         let info: AgentInfo = get_agent_info(stream).expect("Game over.");
-        let command: Command = think_function(info);
-        send_agent_command(command, stream);
+        let command: Command = think(info);
+        send_agent_command(command, stream)?;
     }
+    unreachable!("The loop should always run");
     Ok(())
 }
 
@@ -57,8 +61,8 @@ pub fn agent_main(host: &String, port: &String, team_name: &String, think: Think
     println!("addr: {}", addr);
 
     let mut stream = TcpStream::connect(addr).expect("Agent unable to connect to arena.");
-    send_team_name(&mut stream, team_name);
-    run(&mut stream, think);
+    send_team_name(&mut stream, team_name)?;
+    run(&mut stream, think)?;
 
     Ok(())
 }
