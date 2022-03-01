@@ -17,7 +17,7 @@ fn main() {
 
     let host: &String = args.get(1).unwrap();
     let port: &String = args.get(2).unwrap();
-    let team_name = "builder-bees".to_string();
+    let team_name = "builder-bees\n".to_string();
 
     agent::agent_main(host, port, &team_name, think);
 }
