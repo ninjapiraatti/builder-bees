@@ -18,14 +18,16 @@ fn send_team_name(stream: &mut TcpStream, team_name: &String) -> Result<()> {
 
 fn get_line_from_arena(stream: &mut TcpStream) -> Result<String> {
     let mut line = String::new();
+    println!("Attempting to get line from arena");
     stream.read_to_string(&mut line)?;
     Ok(line)
 }
 
 fn get_agent_info(stream: &mut TcpStream) -> Result<AgentInfo> {
     let line = get_line_from_arena(stream).unwrap();
+    println!("Line from arena: {}", line);
     //TODO: check that string isn't gameover
-    let info: AgentInfo = deserialize_agent_info(line);
+    let info: AgentInfo = deserialize_agent_info(&line);
     Ok(info)
 }
 
@@ -36,6 +38,7 @@ fn send_agent_command(command: Command, stream: &mut TcpStream) -> Result<()> {
     let bytes_sent = stream
         .write(&buffer.read_bytes(buffer.len()))
         .expect("Agent unable to send command to arena.");
+    println!("Bytes sent to arena: {}", bytes_sent);
     stream.flush()?;
     Ok(())
 }
@@ -47,6 +50,7 @@ fn think(info: &AgentInfo) -> Command {
 
 #[allow(unreachable_code)]
 fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
+    println!("Running agent.");
     loop {
         let info: AgentInfo = get_agent_info(stream).expect("Game over.");
         let command: Command = think(info);
@@ -62,6 +66,7 @@ pub fn agent_main(host: &String, port: &String, team_name: &String, think: Think
 
     let mut stream = TcpStream::connect(addr).expect("Agent unable to connect to arena.");
     send_team_name(&mut stream, team_name)?;
+    println!("Team name succesfully sent.");
     run(&mut stream, think)?;
 
     Ok(())
