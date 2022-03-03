@@ -20,6 +20,9 @@ pub const MAX_AGENT_INFO_LEN: usize = (VIEW_SIZE * VIEW_SIZE + 30);
 pub const MAX_COMMAND_LEN: usize = 10;
 pub const NET_BUFFER_SIZE: usize = 200;
 
+pub const STRATEGY_BUILD_WALLS: i32 = 0;
+pub const STRATEGY_PICK_FLOWERS: i32 = 1;
+
 pub type ThinkFunction = fn(&AgentInfo) -> Command;
 
 pub struct AgentInfo {
@@ -29,6 +32,42 @@ pub struct AgentInfo {
     pub row: i32,
     pub col: i32,
     pub cells: Array2D<Cell>,
+}
+
+pub struct Map {
+    pub cells: Array2D<Cell>,
+    //pub width: i32,
+    //pub height: i32,
+}
+
+impl Map {
+    pub fn new() -> Self {
+        Self {
+            cells: Array2D::filled_with(Cell::EMPTY, NUM_COLS, NUM_ROWS),
+            //width: NUM_COLS,
+            //height: NUM_ROWS,
+        }
+    }
+}
+
+
+pub struct GameState {
+    pub map: Map,
+    pub strategy: i32,
+}
+
+impl GameState {
+    pub fn new() -> Self {
+        Self {
+            map: Map::new(),
+            strategy: STRATEGY_BUILD_WALLS,
+        }
+    }
+
+    pub fn update(&mut self, agent_info: &AgentInfo) {
+        println!("Updating map");
+        //self.map.cells = agent_info.cells;
+    }
 }
 
 impl AgentInfo {

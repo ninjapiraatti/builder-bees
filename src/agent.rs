@@ -5,7 +5,7 @@ use std::io::Result;
 use std::io::{ BufRead, BufReader, Read, Write };
 use std::time::Duration;
 use fixed_buffer::{ deframe_line, FixedBuf, ReadWriteChain };
-use crate::common::{ AgentInfo, Command, ThinkFunction, MAX_COMMAND_LEN, NET_BUFFER_SIZE };
+use crate::common::{ AgentInfo, Command, ThinkFunction, MAX_COMMAND_LEN, NET_BUFFER_SIZE, GameState };
 use crate::serialization::{ deserialize_agent_info, serialize_agent_command };
 
 
@@ -57,9 +57,11 @@ fn send_agent_command(command: Command, stream: &mut TcpStream) -> Result<()> {
 #[allow(unreachable_code)]
 fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
     println!("Running agent.");
+    let mut gamestate = GameState::new();
     loop {
         let info: AgentInfo = get_agent_info(stream).expect("Game over.");
         let command: Command = think(&info);
+        gamestate.update(&info);
         println!("{:?}", command);
         send_agent_command(command, stream)?;
     }

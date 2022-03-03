@@ -1,6 +1,16 @@
 // This file contains the same functionality as serialization.c used in libagent.a
 
-use crate::common::{ AgentInfo, Cell, Command, NUM_ROWS, NUM_COLS, MAX_COMMAND_LEN, MAX_AGENT_INFO_LEN, NET_BUFFER_SIZE, VIEW_SIZE };
+use crate::common::{ 
+    AgentInfo, 
+    Cell, 
+    Command, 
+    NUM_ROWS, 
+    NUM_COLS, 
+    MAX_COMMAND_LEN, 
+    MAX_AGENT_INFO_LEN, 
+    NET_BUFFER_SIZE, 
+    VIEW_SIZE,
+};
 use fixed_buffer::FixedBuf;
 use array2d::Array2D;
 
@@ -34,7 +44,7 @@ pub fn deserialize_agent_info(buffer: &String) -> AgentInfo {
         bee: params[2].parse::<i32>().unwrap(),
         row: params[3].parse::<i32>().unwrap(),
         col: params[4].parse::<i32>().unwrap(),
-        cells: parse_cells_string(params[5]), //TODO: Implement function for String -> Array2D
+        cells: parse_cells_string(params[5]),
     }
 }
 
