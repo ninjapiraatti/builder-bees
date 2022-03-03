@@ -2,7 +2,7 @@
 
 use std::net::{ SocketAddr, TcpStream };
 use std::io::Result;
-use std::io::{ Read, Write };
+use std::io::{ BufRead, BufReader, Read, Write };
 use std::time::Duration;
 use fixed_buffer::{ deframe_line, FixedBuf, ReadWriteChain };
 use crate::common::{ AgentInfo, Command, ThinkFunction, MAX_COMMAND_LEN, NET_BUFFER_SIZE };
@@ -22,9 +22,11 @@ fn send_team_name(stream: &mut TcpStream, team_name: &String) -> Result<()> {
 }
 
 fn get_line_from_arena(stream: &mut TcpStream) -> Result<String> {
-    let mut line = String::new();
+    let mut reader = BufReader::new(stream);
+    let mut buffer: Vec<u8> = Vec::new();
     println!("Attempting to get line from arena");
-    stream.read_to_string(&mut line)?;
+    reader.read_until(b'\n', &mut buffer)?;
+    let line = String::from_utf8(buffer).expect("Could not write buffer as string.");
     Ok(line)
 }
 
