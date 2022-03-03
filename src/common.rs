@@ -65,8 +65,17 @@ impl GameState {
     }
 
     pub fn update(&mut self, agent_info: &AgentInfo) {
-        println!("Updating map");
-        //self.map.cells = agent_info.cells;
+        for row in 0..VIEW_SIZE {
+            //print!("\n");
+            for col in 0..VIEW_SIZE {
+                //print!("{:?}", self.map.cells.get(row,col).unwrap());
+                if col >= 0 && col < NUM_COLS && row >= 0 && row < NUM_ROWS {
+                    let y = agent_info.row + row as i32 - VIEW_DISTANCE as i32;
+                    let x = agent_info.col + col as i32 - VIEW_DISTANCE as i32;
+                    self.map.cells.set(row, col, Cell::from(*agent_info.cells.get(x as usize, y as usize).unwrap()));
+                }
+            }
+        }
     }
 }
 
@@ -135,7 +144,7 @@ pub enum Action {
     GUARD,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum Cell {
     EMPTY,
     BEE_0,

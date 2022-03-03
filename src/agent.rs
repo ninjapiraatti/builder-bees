@@ -61,9 +61,9 @@ fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
     loop {
         let info: AgentInfo = get_agent_info(stream).expect("Game over.");
         let command: Command = think(&info);
-        gamestate.update(&info);
         println!("{:?}", command);
         send_agent_command(command, stream)?;
+        gamestate.update(&info);
     }
     unreachable!("The loop should always run");
     Ok(())
