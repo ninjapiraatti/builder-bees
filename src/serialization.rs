@@ -4,36 +4,28 @@ use crate::common::{
     AgentInfo, 
     Cell, 
     Command, 
-    NUM_ROWS, 
-    NUM_COLS, 
     MAX_COMMAND_LEN, 
     MAX_AGENT_INFO_LEN, 
-    NET_BUFFER_SIZE, 
     VIEW_SIZE,
 };
 use fixed_buffer::FixedBuf;
 use array2d::Array2D;
 
+/// Helper function that converts the cells portion of the serialized agent info string into
+/// a 2D array of Cells
 fn parse_cells_string(string: &str) -> Array2D<Cell> {
     let mut cell_chars: Vec<char> = string.chars().collect();
     cell_chars.pop();
-    println!("{:?}", cell_chars);
     let cells_i32: Vec<i32> = cell_chars.iter()
         .map(|&x| x.to_digit(10).unwrap() as i32)
         .collect::<Vec<i32>>();
     let cells: Vec<Cell> = cells_i32.iter().map(|&x| x.try_into().unwrap()).collect();
     let array: Array2D<Cell> = Array2D::from_row_major(&cells, VIEW_SIZE, VIEW_SIZE);
-    println!("{:?}", array);
     array
 }
 
+/// Deserializes the agent info string and returns an AgentInfo
 pub fn deserialize_agent_info(buffer: &String) -> AgentInfo {
-    //let info: AgentInfo = AgentInfo::new();
-    //let cells = String::with_capacity(MAX_AGENT_INFO_LEN);
-
-    //println!("Serialized agent info in deserialize_agent_info: {}", buffer);
-    //println!("MAX_AGENT_INFO_LEN: {}", MAX_AGENT_INFO_LEN);
-    //println!("Buffer len: {}", buffer.len());
     if buffer.len() >= MAX_AGENT_INFO_LEN { panic!("Deserialization fail 0") };
 
     let params: Vec<&str> = buffer.split(',').collect();
@@ -48,16 +40,10 @@ pub fn deserialize_agent_info(buffer: &String) -> AgentInfo {
     }
 }
 
+/// Serializes a Command and returns and saves the result into a designated buffer.
 pub fn serialize_agent_command(command: Command, buffer: &mut FixedBuf<MAX_COMMAND_LEN>) {
     let message: String = format!("{},{}\n",
                                   command.action as i32,
                                   command.direction as i32);
     buffer.write_str(&message).expect("Command string could not be written to buffer.");
-    println!("Command string written to buffer.");
-    println!("Buffer: {:?}", buffer);
-}
-
-pub fn deserialize_agent_command(command: Command, buffer: String) {
-    // Implementation of this may be unneeded, seems like only the server uses it
-    unimplemented!("");
 }
