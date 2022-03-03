@@ -2,10 +2,11 @@
 #![allow(non_camel_case_types)]
 
 use array2d::Array2D;
-use std::fmt::{ Debug, Formatter, Result };
+use std::fmt::{ Debug, Formatter };
+use std::fmt;
 
-pub const NUM_ROWS: i32 = 25;
-pub const NUM_COLS: i32 = 30;
+pub const NUM_ROWS: usize = 25;
+pub const NUM_COLS: usize = 30;
 
 pub const NUM_PLAYERS: i32 = 2;
 pub const NUM_BEES: i32 = 5;
@@ -44,7 +45,7 @@ impl AgentInfo {
 }
 
 impl Debug for AgentInfo {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.debug_struct("AgentInfo")
             .field("turn", &self.turn)
             .field("player", &self.player)
@@ -95,7 +96,7 @@ pub enum Action {
     GUARD,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Cell {
     EMPTY,
     BEE_0,
@@ -107,4 +108,24 @@ pub enum Cell {
     HIVE_0,
     HIVE_1,
     OUTSIDE,
+}
+
+impl TryFrom<i32> for Cell {
+    type Error = ();
+
+    fn try_from(v: i32) -> Result<Self, Self::Error> {
+        match v {
+            x if x == Cell::EMPTY as i32 => Ok(Cell::EMPTY),
+            x if x == Cell::BEE_0 as i32 => Ok(Cell::BEE_0),
+            x if x == Cell::BEE_1 as i32 => Ok(Cell::BEE_1),
+            x if x == Cell::BEE_0_WITH_FLOWER as i32 => Ok(Cell::BEE_0_WITH_FLOWER),
+            x if x == Cell::BEE_1_WITH_FLOWER as i32 => Ok(Cell::BEE_1_WITH_FLOWER),
+            x if x == Cell::FLOWER as i32 => Ok(Cell::FLOWER),
+            x if x == Cell::WALL as i32 => Ok(Cell::WALL),
+            x if x == Cell::HIVE_0 as i32 => Ok(Cell::HIVE_0),
+            x if x == Cell::HIVE_1 as i32 => Ok(Cell::HIVE_1),
+            x if x == Cell::OUTSIDE as i32 => Ok(Cell::OUTSIDE),
+            _ => Err(()),
+        }
+    }
 }

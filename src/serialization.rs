@@ -1,20 +1,29 @@
 // This file contains the same functionality as serialization.c used in libagent.a
 
-use crate::common::{ AgentInfo, Command, MAX_COMMAND_LEN, MAX_AGENT_INFO_LEN, NET_BUFFER_SIZE };
+use crate::common::{ AgentInfo, Cell, Command, NUM_ROWS, NUM_COLS, MAX_COMMAND_LEN, MAX_AGENT_INFO_LEN, NET_BUFFER_SIZE, VIEW_SIZE };
 use fixed_buffer::FixedBuf;
+use array2d::Array2D;
 
-pub fn serialize_agent_info(info: AgentInfo, buffer: &mut FixedBuf<MAX_COMMAND_LEN>) {
-    // Implementation of this may be unneeded, seems like only the server uses it
-    unimplemented!("");
+fn parse_cells_string(string: &str) -> Array2D<Cell> {
+    let mut cell_chars: Vec<char> = string.chars().collect();
+    cell_chars.pop();
+    println!("{:?}", cell_chars);
+    let cells_i32: Vec<i32> = cell_chars.iter()
+        .map(|&x| x.to_digit(10).unwrap() as i32)
+        .collect::<Vec<i32>>();
+    let cells: Vec<Cell> = cells_i32.iter().map(|&x| x.try_into().unwrap()).collect();
+    let array: Array2D<Cell> = Array2D::from_row_major(&cells, VIEW_SIZE, VIEW_SIZE);
+    println!("{:?}", array);
+    array
 }
 
 pub fn deserialize_agent_info(buffer: &String) -> AgentInfo {
     //let info: AgentInfo = AgentInfo::new();
     //let cells = String::with_capacity(MAX_AGENT_INFO_LEN);
 
-    println!("Serialized agent info in deserialize_agent_info: {}", buffer);
-    println!("MAX_AGENT_INFO_LEN: {}", MAX_AGENT_INFO_LEN);
-    println!("Buffer len: {}", buffer.len());
+    //println!("Serialized agent info in deserialize_agent_info: {}", buffer);
+    //println!("MAX_AGENT_INFO_LEN: {}", MAX_AGENT_INFO_LEN);
+    //println!("Buffer len: {}", buffer.len());
     if buffer.len() >= MAX_AGENT_INFO_LEN { panic!("Deserialization fail 0") };
 
     let params: Vec<&str> = buffer.split(',').collect();
@@ -25,7 +34,7 @@ pub fn deserialize_agent_info(buffer: &String) -> AgentInfo {
         bee: params[2].parse::<i32>().unwrap(),
         row: params[3].parse::<i32>().unwrap(),
         col: params[4].parse::<i32>().unwrap(),
-        ..AgentInfo::new() //TODO: Implement function for String -> Array2D
+        cells: parse_cells_string(params[5]), //TODO: Implement function for String -> Array2D
     }
 }
 
