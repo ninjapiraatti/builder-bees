@@ -2,6 +2,7 @@
 #![allow(non_camel_case_types)]
 
 use array2d::Array2D;
+use enum_iterator::IntoEnumIterator;
 use std::fmt::{ Debug, Formatter };
 use std::fmt;
 
@@ -32,6 +33,35 @@ pub struct AgentInfo {
     pub row: i32,
     pub col: i32,
     pub cells: Array2D<Cell>,
+}
+
+impl AgentInfo {
+    pub fn new() -> Self {
+        Self {
+            turn: 0,
+            player: 0,
+            bee: 0,
+            row: 0,
+            col: 0,
+            cells: Array2D::filled_with(Cell::EMPTY, VIEW_SIZE, VIEW_SIZE),
+        }
+    }
+
+    pub fn cell_type(&self, coords: Coords) -> &Cell {
+        self.cells.get(coords.row, coords.col).unwrap()
+    }
+}
+
+impl Debug for AgentInfo {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("AgentInfo")
+            .field("turn", &self.turn)
+            .field("player", &self.player)
+            .field("bee", &self.bee)
+            .field("row", &self.row)
+            .field("col", &self.col)
+            .finish_non_exhaustive()
+    }
 }
 
 pub struct Map {
@@ -79,31 +109,6 @@ impl GameState {
     }
 }
 
-impl AgentInfo {
-    pub fn new() -> Self {
-        Self {
-            turn: 0,
-            player: 0,
-            bee: 0,
-            row: 0,
-            col: 0,
-            cells: Array2D::filled_with(Cell::EMPTY, VIEW_SIZE, VIEW_SIZE),
-        }
-    }
-}
-
-impl Debug for AgentInfo {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.debug_struct("AgentInfo")
-            .field("turn", &self.turn)
-            .field("player", &self.player)
-            .field("bee", &self.bee)
-            .field("row", &self.row)
-            .field("col", &self.col)
-            .finish_non_exhaustive()
-    }
-}
-
 #[derive(Debug)]
 pub struct Command {
     pub action: Action,
@@ -120,11 +125,36 @@ impl Command {
 }
 
 pub struct Coords {
-    row: i32,
-    col: i32,
+    row: usize,
+    col: usize,
 }
 
-#[derive(Debug)]
+impl Coords {
+    /// Given a direction, returns the coords of the adjacent cell
+    /// in that direction wrapped in Option.
+    pub fn adjacent_coord(&self, direction: Direction) -> Option<Coords> {
+        match direction {
+            Direction::N if self.row == 0 => None,
+            Direction::N => Some(Coords { col: self.row - 1, row: self.col }),
+            Direction::NE if self.row == 0 || self.col == NUM_COLS - 1 => None,
+            Direction::NE => Some(Coords { col: self.row - 1, row: self.col + 1 }),
+            Direction::E if self.col == NUM_COLS - 1 => None,
+            Direction::E => Some(Coords { col: self.row, row: self.col + 1 }),
+            Direction::SE if self.row == NUM_ROWS - 1 || self.col == NUM_COLS + 1 => None,
+            Direction::SE => Some(Coords { col: self.row + 1, row: self.col + 1 }),
+            Direction::S if self.row == NUM_ROWS + 1 => None,
+            Direction::S => Some(Coords {col: self.row + 1, row: self.col}),
+            Direction::SW if self.row == NUM_ROWS + 1 || self.col == 0 => None,
+            Direction::SW => Some(Coords { col: self.row + 1, row: self.col - 1 }),
+            Direction::W if self.col == 0 => None,
+            Direction::W => Some(Coords { col: self.row, row: self.col - 1 }),
+            Direction::NW if self.row == 0 || self.col == 0 => None,
+            Direction::NW => Some(Coords { col: self.row - 1, row: self.col - 1 }),
+        }
+    }
+}
+
+#[derive(Debug, IntoEnumIterator)]
 pub enum Direction {
     N,
     NE,
@@ -134,6 +164,23 @@ pub enum Direction {
     SW,
     W,
     NW,
+}
+
+impl Direction {
+    /// Given a direction, returns the x and y offset values needed
+    /// to index the cell in that direction.
+    pub fn direction_offset(direction: Direction) -> (i32, i32) {
+        match direction {
+            Direction::N => (-1, 0),
+            Direction::NE => (-1, 1),
+            Direction::E => (0, 1),
+            Direction::SE => (1, 1),
+            Direction::S => (1, 0),
+            Direction::SW => (1, -1),
+            Direction::W => (0, -1),
+            Direction::NW => (-1, -1),
+        }
+    }
 }
 
 #[derive(Debug)]

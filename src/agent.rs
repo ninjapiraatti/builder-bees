@@ -4,7 +4,14 @@ use std::net::TcpStream;
 use std::io::Result;
 use std::io::{ BufRead, BufReader, Write };
 use fixed_buffer::FixedBuf;
-use crate::common::{ AgentInfo, Command, ThinkFunction, MAX_COMMAND_LEN, NET_BUFFER_SIZE, GameState };
+use crate::common::{
+    AgentInfo,
+    Command,
+    ThinkFunction,
+    MAX_COMMAND_LEN,
+    NET_BUFFER_SIZE,
+    GameState
+};
 use crate::serialization::{ deserialize_agent_info, serialize_agent_command };
 
 /// Sends the agent's team name to the arena server.
