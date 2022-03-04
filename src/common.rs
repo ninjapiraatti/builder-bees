@@ -7,6 +7,7 @@ use std::fmt::{ Debug, Formatter };
 use std::fmt;
 use rand::distributions::{ Distribution, Standard };
 use rand::Rng;
+use crate::bee::Bee;
 
 pub const NUM_ROWS: usize = 25;
 pub const NUM_COLS: usize = 30;
@@ -26,7 +27,7 @@ pub const NET_BUFFER_SIZE: usize = 200;
 pub const STRATEGY_BUILD_WALLS: i32 = 0;
 pub const STRATEGY_PICK_FLOWERS: i32 = 1;
 
-pub type ThinkFunction = fn(&AgentInfo) -> Command;
+pub type ThinkFunction = fn(&AgentInfo, &mut GameState) -> Command;
 
 pub struct AgentInfo {
     pub turn: i32,
@@ -85,6 +86,7 @@ impl Map {
 
 pub struct GameState {
     pub map: Map,
+    pub bees: Vec<Bee>,
     pub strategy: i32,
 }
 
@@ -92,6 +94,7 @@ impl GameState {
     pub fn new() -> Self {
         Self {
             map: Map::new(),
+            bees: vec![Bee::new(0), Bee::new(1), Bee::new(2), Bee::new(3), Bee::new(4)],
             strategy: STRATEGY_BUILD_WALLS,
         }
     }

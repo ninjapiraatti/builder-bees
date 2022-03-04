@@ -66,7 +66,7 @@ fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
     loop {
         let info: AgentInfo = get_agent_info(stream).expect("Game over.");
         println!("{:?}", info);
-        let command: Command = think(&info);
+        let command: Command = think(&info, &mut gamestate);
         println!("{:?}", command);
         send_agent_command(command, stream)?;
         //gamestate.update(&info);

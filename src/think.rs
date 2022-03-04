@@ -20,3 +20,20 @@ pub fn find_neighbour(info: &AgentInfo, cell_type: &Cell) -> Option<Direction> {
     }
     None
 }
+
+/// If a flower is in view, return its coordinates.
+pub fn find_flower_in_view(info: &AgentInfo) -> Option<Coords> {
+    for row in 0..7 {
+        for col in 0..7 {
+            let cell = info.cells.get(row, col).unwrap();
+            if Cell::FLOWER.eq(cell) {
+                let coords = Coords {
+                    row: row,
+                    col: col,
+                };
+                return Some(coords)
+            }
+        }
+    }
+    None
+}
