@@ -5,6 +5,8 @@ use array2d::Array2D;
 use enum_iterator::IntoEnumIterator;
 use std::fmt::{ Debug, Formatter };
 use std::fmt;
+use rand::distributions::{ Distribution, Standard };
+use rand::Rng;
 
 pub const NUM_ROWS: usize = 25;
 pub const NUM_COLS: usize = 30;
@@ -47,7 +49,7 @@ impl AgentInfo {
         }
     }
 
-    pub fn cell_type(&self, coords: Coords) -> &Cell {
+    pub fn cell_type(&self, coords: &Coords) -> &Cell {
         self.cells.get(coords.row, coords.col).unwrap()
     }
 }
@@ -125,31 +127,31 @@ impl Command {
 }
 
 pub struct Coords {
-    row: usize,
-    col: usize,
+    pub row: usize,
+    pub col: usize,
 }
 
 impl Coords {
     /// Given a direction, returns the coords of the adjacent cell
     /// in that direction wrapped in Option.
-    pub fn adjacent_coord(&self, direction: Direction) -> Option<Coords> {
+    pub fn adjacent_coord(&self, direction: &Direction) -> Option<Coords> {
         match direction {
             Direction::N if self.row == 0 => None,
-            Direction::N => Some(Coords { col: self.row - 1, row: self.col }),
+            Direction::N => Some(Coords { row: self.row - 1, col: self.col }),
             Direction::NE if self.row == 0 || self.col == NUM_COLS - 1 => None,
-            Direction::NE => Some(Coords { col: self.row - 1, row: self.col + 1 }),
+            Direction::NE => Some(Coords { row: self.row - 1, col: self.col + 1 }),
             Direction::E if self.col == NUM_COLS - 1 => None,
-            Direction::E => Some(Coords { col: self.row, row: self.col + 1 }),
+            Direction::E => Some(Coords { row: self.row, col: self.col + 1 }),
             Direction::SE if self.row == NUM_ROWS - 1 || self.col == NUM_COLS + 1 => None,
-            Direction::SE => Some(Coords { col: self.row + 1, row: self.col + 1 }),
+            Direction::SE => Some(Coords { row: self.row + 1, col: self.col + 1 }),
             Direction::S if self.row == NUM_ROWS + 1 => None,
-            Direction::S => Some(Coords {col: self.row + 1, row: self.col}),
+            Direction::S => Some(Coords { row: self.row + 1, col: self.col }),
             Direction::SW if self.row == NUM_ROWS + 1 || self.col == 0 => None,
-            Direction::SW => Some(Coords { col: self.row + 1, row: self.col - 1 }),
+            Direction::SW => Some(Coords { row: self.row + 1, col: self.col - 1 }),
             Direction::W if self.col == 0 => None,
-            Direction::W => Some(Coords { col: self.row, row: self.col - 1 }),
+            Direction::W => Some(Coords { row: self.row, col: self.col - 1 }),
             Direction::NW if self.row == 0 || self.col == 0 => None,
-            Direction::NW => Some(Coords { col: self.row - 1, row: self.col - 1 }),
+            Direction::NW => Some(Coords { row: self.row - 1, col: self.col - 1 }),
         }
     }
 }
@@ -183,6 +185,21 @@ impl Direction {
     }
 }
 
+impl Distribution<Direction> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Direction {
+        match rng.gen_range(0..=7) {
+            0 => Direction::N,
+            1 => Direction::NE,
+            2 => Direction::E,
+            3 => Direction::SE,
+            4 => Direction::S,
+            5 => Direction::SW,
+            6 => Direction::W,
+            _ => Direction::NW,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum Action {
     MOVE,
@@ -191,7 +208,7 @@ pub enum Action {
     GUARD,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Cell {
     EMPTY,
     BEE_0,
@@ -203,6 +220,18 @@ pub enum Cell {
     HIVE_0,
     HIVE_1,
     OUTSIDE,
+}
+
+impl Cell {
+    pub fn has_flower(&self) -> bool {
+        if self.eq(&Cell::BEE_0_WITH_FLOWER) {
+            true
+        } else if self.eq(&Cell::BEE_1_WITH_FLOWER) {
+            true
+        } else {
+            false
+        }
+    }
 }
 
 impl TryFrom<i32> for Cell {

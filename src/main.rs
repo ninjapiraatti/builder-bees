@@ -1,13 +1,64 @@
 mod agent;
 mod common;
 mod serialization;
+mod think;
 
 use std::env;
-use crate::common::{ AgentInfo, Command };
+use crate::common::{ 
+    Action,
+    AgentInfo,
+    Cell,
+    Command,
+    Coords,
+    Direction,
+    VIEW_DISTANCE
+};
+use crate::think::{ find_neighbour };
 
+/// Returns the hive cell type given a player number.
+pub fn hive_cell(player: i32) -> Cell {
+    if player == 0 {
+        Cell::HIVE_0
+    } else {
+        Cell::HIVE_1
+    }
+}
+
+/// The function that decides on a command for a given turn based on agent info.
+/// Current logic is similar to the logic in example agent.
 pub fn think(info: &AgentInfo) -> Command {
-    let command: Command = Command::new();
-    command
+    let bee_cell = info.cell_type(&Coords { row: VIEW_DISTANCE, col: VIEW_DISTANCE });
+
+    // If the current bee holds a flower, check if the hive is adjacent
+    // and forage the flower to the hive if possible.
+    if bee_cell.has_flower() {
+        let hive_direction = find_neighbour(info, &hive_cell(info.player));
+        match hive_direction {
+            Some(v) => return Command {
+                action: Action::FORAGE,
+                direction: v,
+            },
+            None => (),
+        }
+    // If the current bee doesn't hold a flower, check if there is a flower
+    // adjacent to the bee. Pick up if possible.
+    } else {
+        let flower_direction = find_neighbour(info, &Cell::FLOWER);
+        match flower_direction {
+            Some(v) => return Command {
+                action: Action::FORAGE,
+                direction: v,
+            },
+            None => (),
+        }
+    }
+
+    // Otherwise move in a random direction.
+    let random_direction: Direction = rand::random();
+    Command {
+        action: Action::MOVE,
+        direction: random_direction,
+    }
 }
 
 fn main() {
