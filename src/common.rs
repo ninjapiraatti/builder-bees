@@ -106,7 +106,6 @@ impl GameState {
                 if x >= 0 && x < NUM_COLS as i32 && y >= 0 && y < NUM_ROWS as i32 {
                     //println!("{:?}", self.map.cells.get(y,x).unwrap());
                     self.map.cells.set(y as usize, x as usize, Cell::from(*agent_info.cells.get(row as usize, col as usize).unwrap_or_else(|| &Cell::EMPTY)));
-                    //self.map.cells.set(5, 5, Cell::EMPTY);
                 }
             }
         }

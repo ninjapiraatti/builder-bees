@@ -1,3 +1,5 @@
+use array2d::Array2D;
+
 use crate::common::{ Map, Cell::*, NUM_ROWS, NUM_COLS };
 
 pub fn print_map(map: &Map) {
@@ -17,6 +19,27 @@ pub fn print_map(map: &Map) {
         WALL => print!("#  "),
         OUTSIDE => print!("X  "),
       }
+    }
+  }
+}
+
+pub fn generate_heatmap(width: usize, height: usize, originx: usize, originy: usize) -> Array2D<f32> {
+  let mut heatmap = Array2D::filled_with(0.0, width, height);
+  for row in 0..height {
+    for col in 0..width {
+      let x = col as i32 - originx as i32;
+      let y = row as i32 - originy as i32;
+      heatmap.set(col, row, ((x*x + y*y) as f32).sqrt());
+    }
+  }
+  heatmap
+}
+
+pub fn print_heatmap(heatmap: &Array2D<f32>) {
+  for row in 0..heatmap.num_rows() {
+    print!("\n");
+    for col in 0..heatmap.num_columns() {
+      print!("{:.2}  ", heatmap.get(col, row).unwrap_or_else(|| &0.0));
     }
   }
 }
