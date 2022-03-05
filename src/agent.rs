@@ -13,6 +13,7 @@ use crate::common::{
     GameState
 };
 use crate::serialization::{ deserialize_agent_info, serialize_agent_command };
+use crate::utils::{ print_map };
 
 /// Sends the agent's team name to the arena server.
 fn send_team_name(stream: &mut TcpStream, team_name: &String) -> Result<()> {
@@ -66,10 +67,11 @@ fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
     loop {
         let info: AgentInfo = get_agent_info(stream).expect("Game over.");
         println!("{:?}", info);
+        gamestate.update(&info);
         let command: Command = think(&info);
         println!("{:?}", command);
         send_agent_command(command, stream)?;
-        //gamestate.update(&info);
+        print_map(&gamestate.map);
     }
     unreachable!("The loop should always run");
     Ok(())

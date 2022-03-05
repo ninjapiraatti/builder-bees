@@ -2,6 +2,7 @@ mod agent;
 mod common;
 mod serialization;
 mod think;
+mod utils;
 
 use std::env;
 use crate::common::{ 
