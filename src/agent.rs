@@ -64,7 +64,7 @@ fn send_agent_command(command: Command, stream: &mut TcpStream) -> Result<()> {
 fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
     println!("Running agent.");
     let mut gamestate = GameState::new();
-    let heatmap = generate_heatmap(30, 25, 12, 12);
+    let heatmap = generate_heatmap(8, 4, 2, 2);
     loop {
         let info: AgentInfo = get_agent_info(stream).expect("Game over.");
         println!("{:?}", info);
