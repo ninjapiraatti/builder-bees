@@ -2,6 +2,7 @@
 
 use std::net::TcpStream;
 use std::io::Result;
+use array2d::Array2D;
 use std::io::{ BufRead, BufReader, Write };
 use fixed_buffer::FixedBuf;
 use crate::common::{
@@ -10,6 +11,8 @@ use crate::common::{
     ThinkFunction,
     MAX_COMMAND_LEN,
     NET_BUFFER_SIZE,
+    NUM_ROWS,
+    NUM_COLS,
     GameState
 };
 use crate::serialization::{ deserialize_agent_info, serialize_agent_command };
@@ -64,16 +67,25 @@ fn send_agent_command(command: Command, stream: &mut TcpStream) -> Result<()> {
 fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
     println!("Running agent.");
     let mut gamestate = GameState::new();
-    let heatmap = generate_heatmap(8, 4, 2, 2);
+    let mut heatmap: Array2D<f32>;
+    let mut heatmap_initialized = false;
     loop {
         let info: AgentInfo = get_agent_info(stream).expect("Game over.");
+        if heatmap_initialized == false {
+            if info.player == 1 {
+                heatmap = generate_heatmap(NUM_COLS, NUM_ROWS, 3, 13);
+            } else {
+                heatmap = generate_heatmap(NUM_COLS, NUM_ROWS, 27, 13);
+            }
+            print_heatmap(&heatmap);
+            heatmap_initialized = true;
+        }
         println!("{:?}", info);
         gamestate.update(&info);
         let command: Command = think(&info);
         println!("{:?}", command);
         send_agent_command(command, stream)?;
-        //print_map(&gamestate.map);
-        print_heatmap(&heatmap);
+        print_map(&gamestate.map);
     }
     unreachable!("The loop should always run");
     Ok(())
