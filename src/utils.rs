@@ -1,13 +1,18 @@
 use array2d::Array2D;
 
-use crate::common::{ Map, Cell::*, NUM_ROWS, NUM_COLS };
+use crate::common::{ Map, Cell, CellType, CellType::*, NUM_ROWS, NUM_COLS };
 
 pub fn print_map(map: &Map) {
 	for row in 0..NUM_ROWS {
 		print!("\n");
 		for col in 0..NUM_COLS {
-			let chr = map.cells.get(row,col).unwrap_or_else(|| &EMPTY);
-			match chr {
+			let chr = map.cells.get(row, col);
+            let mut celltype = CellType::EMPTY;
+            match chr {
+                Some(v) => celltype = v.celltype,
+                None => (),
+            }
+			match celltype {
 				EMPTY => print!(".  "),
 				BEE_0 => print!("b  "),
 				BEE_1 => print!("B  "),

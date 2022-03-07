@@ -1,7 +1,7 @@
 use crate::common::{ 
     Action,
     AgentInfo,
-    Cell,
+    CellType,
     Command,
     Coords,
     Direction,
@@ -11,6 +11,7 @@ use crate::common::{
     VIEW_DISTANCE
 };
 use crate::think::{
+    can_move_in_direction,
     find_neighbour,
     find_flower_in_view,
     get_direction_to_destination,
@@ -18,12 +19,14 @@ use crate::think::{
     hive_cell
 };
 use crate::bee::Bee;
+use array2d::Array2D;
 
 /// The function that decides on a command for a given turn based on agent info.
 /// Current logic is similar to the logic in example agent.
-pub fn think_simple_agent(info: &AgentInfo, gamestate: &mut GameState) -> Command {
+pub fn think_simple_agent(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState) -> Command {
     let bee_cell = info.cell_type(&Coords { row: VIEW_DISTANCE, col: VIEW_DISTANCE });
     let current_bee = &mut gamestate.bees[info.bee as usize];
+    let bee_position = Coords { row: info.row as usize, col: info.col as usize };
 
     // If the current bee holds a flower, check if the hive is adjacent
     // and forage the flower to the hive if possible.
@@ -39,7 +42,7 @@ pub fn think_simple_agent(info: &AgentInfo, gamestate: &mut GameState) -> Comman
     // If the current bee doesn't hold a flower, check if there is a flower
     // adjacent to the bee. Pick up if possible.
     } else {
-        let flower_direction = find_neighbour(info, &Cell::FLOWER);
+        let flower_direction = find_neighbour(info, &CellType::FLOWER);
         match flower_direction {
             Some(v) => return Command {
                 action: Action::FORAGE,
@@ -55,10 +58,14 @@ pub fn think_simple_agent(info: &AgentInfo, gamestate: &mut GameState) -> Comman
     if !bee_cell.has_flower() {
         if current_bee.destination.is_some() {
             let bee_destination: &Coords = current_bee.destination.as_ref().unwrap();
-            let direction = get_direction_to_destination(bee_destination);
-            return Command {
-                action: Action::MOVE,
-                direction: direction,
+            let direction = get_direction_to_destination(bee_destination, &bee_position);
+            match direction {
+                Some(v) if can_move_in_direction(info, &v) => return Command {
+                    action: Action::MOVE,
+                    direction: v,
+                },
+                Some(_) => (),
+                None => (),
             }
         } else {
             let flower_coords = find_flower_in_view(info);
@@ -70,14 +77,21 @@ pub fn think_simple_agent(info: &AgentInfo, gamestate: &mut GameState) -> Comman
     //TODO: When bee has flower, move towards hive.
     } else {
         current_bee.destination = None;
-        let hive_direction = get_direction_to_destination(&hive_coords(info.player));
-        return Command {
-            action: Action::MOVE,
-            direction: hive_direction,
+        let hive_direction = get_direction_to_destination(&hive_coords(info.player), &bee_position);
+        match hive_direction {
+            Some(v) if can_move_in_direction(info, &v) => return Command {
+                action: Action::MOVE,
+                direction: v,
+            },
+            Some(_) => (),
+            None => (),
         }
     }
     // Otherwise move in a random direction.
-    let random_direction: Direction = rand::random();
+    let mut random_direction: Direction = rand::random();
+    while !can_move_in_direction(info, &random_direction) {
+        random_direction = rand::random();
+    }
     Command {
         action: Action::MOVE,
         direction: random_direction,

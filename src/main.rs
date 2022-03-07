@@ -10,7 +10,7 @@ use std::env;
 use crate::common::{ 
     Action,
     AgentInfo,
-    Cell,
+    CellType,
     Command,
     Coords,
     Direction,
@@ -19,21 +19,11 @@ use crate::common::{
     NUM_ROWS,
     VIEW_DISTANCE
 };
-use crate::bee::Bee;
 use array2d::Array2D;
 use crate::think::*;
+use crate::simple_agent::*;
 
-/// Returns the hive cell type given a player number.
-pub fn hive_cell(player: i32) -> Cell {
-	if player == 0 {
-		Cell::HIVE_0
-	} else {
-		Cell::HIVE_1
-	}
-}
-
-/// The function that decides on a command for a given turn based on agent info.
-/// Current logic is similar to the logic in example agent.
+/// The main think function of our agent. 
 pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState) -> Command {
 	let bee_cell = info.cell_type(&Coords { row: VIEW_DISTANCE, col: VIEW_DISTANCE });
 
@@ -48,11 +38,11 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 			},
 			None => (),
 		}
-	// If the current bee doesn't hold a flower, check if there is a flower
-	// adjacent to the bee. Pick up if possible.
+	// If the current bee doesn't hold a flower, find the direction in which
+    // a wall should be built, and move toward it.
 	} else {
 		let wall_direction = find_heat(info, &heatmap);
-		//let flower_direction = find_neighbour(info, &Cell::FLOWER);
+		//let flower_direction = find_neighbour(info, &CellType::FLOWER);
 		match wall_direction {
 			Some(v) => return Command {
 				action: Action::MOVE,

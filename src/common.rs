@@ -28,6 +28,7 @@ pub const STRATEGY_BUILD_WALLS: i32 = 0;
 pub const STRATEGY_PICK_FLOWERS: i32 = 1;
 
 pub type ThinkFunction = fn(&AgentInfo, &Array2D<f32>, &mut GameState) -> Command;
+//pub type ThinkFunction = fn(&AgentInfo, &mut GameState) -> Command;
 
 pub struct AgentInfo {
 	pub turn: i32,
@@ -35,7 +36,7 @@ pub struct AgentInfo {
 	pub bee: i32,
 	pub row: i32,
 	pub col: i32,
-	pub cells: Array2D<Cell>,
+	pub cells: Array2D<CellType>,
 }
 
 impl AgentInfo {
@@ -46,11 +47,11 @@ impl AgentInfo {
 			bee: 0,
 			row: 0,
 			col: 0,
-			cells: Array2D::filled_with(Cell::EMPTY, VIEW_SIZE, VIEW_SIZE),
+			cells: Array2D::filled_with(CellType::EMPTY, VIEW_SIZE, VIEW_SIZE),
 		}
 	}
 
-	pub fn cell_type(&self, coords: &Coords) -> &Cell {
+	pub fn cell_type(&self, coords: &Coords) -> &CellType {
 		self.cells.get(coords.row, coords.col).unwrap()
 	}
 }
@@ -76,7 +77,7 @@ pub struct Map {
 impl Map {
 	pub fn new() -> Self {
 		Self {
-			cells: Array2D::filled_with(Cell::EMPTY, NUM_COLS, NUM_ROWS),
+			cells: Array2D::filled_with(Cell::new(), NUM_COLS, NUM_ROWS),
 			//width: NUM_COLS,
 			//height: NUM_ROWS,
 		}
@@ -108,7 +109,7 @@ impl GameState {
 				let x = agent_info.col + col as i32 - VIEW_DISTANCE as i32;
 				if x >= 0 && x < NUM_COLS as i32 && y >= 0 && y < NUM_ROWS as i32 {
 					//println!("{:?}", self.map.cells.get(y,x).unwrap());
-					self.map.cells.set(y as usize, x as usize, Cell::from(*agent_info.cells.get(row as usize, col as usize).unwrap_or_else(|| &Cell::EMPTY)));
+					self.map.cells.set(y as usize, x as usize, Cell::from(*agent_info.cells.get(row as usize, col as usize).unwrap_or_else(|| &CellType::EMPTY)));
 				}
 			}
 		}
@@ -212,8 +213,35 @@ pub enum Action {
 	GUARD,
 }
 
+#[derive(Clone)]
+pub struct Cell {
+    pub celltype: CellType,
+    pub data_age: i32,
+    pub is_destination: bool,
+}
+
+impl Cell {
+    pub fn new() -> Self {
+        Self {
+            celltype: CellType::EMPTY,
+            data_age: 0,
+            is_destination: false,
+        }
+    }
+}
+
+impl From<CellType> for Cell {
+    fn from(v: CellType) -> Self {
+        Cell {
+            celltype: v,
+            data_age: 0,
+            is_destination: false,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Cell {
+pub enum CellType {
 	EMPTY,
 	BEE_0,
 	BEE_1,
@@ -226,11 +254,11 @@ pub enum Cell {
 	OUTSIDE,
 }
 
-impl Cell {
+impl CellType {
 	pub fn has_flower(&self) -> bool {
-		if self.eq(&Cell::BEE_0_WITH_FLOWER) {
+		if self.eq(&CellType::BEE_0_WITH_FLOWER) {
 			true
-		} else if self.eq(&Cell::BEE_1_WITH_FLOWER) {
+		} else if self.eq(&CellType::BEE_1_WITH_FLOWER) {
 			true
 		} else {
 			false
@@ -238,21 +266,21 @@ impl Cell {
 	}
 }
 
-impl TryFrom<i32> for Cell {
+impl TryFrom<i32> for CellType {
 	type Error = ();
 
 	fn try_from(v: i32) -> Result<Self, Self::Error> {
 		match v {
-			x if x == Cell::EMPTY as i32 => Ok(Cell::EMPTY),
-			x if x == Cell::BEE_0 as i32 => Ok(Cell::BEE_0),
-			x if x == Cell::BEE_1 as i32 => Ok(Cell::BEE_1),
-			x if x == Cell::BEE_0_WITH_FLOWER as i32 => Ok(Cell::BEE_0_WITH_FLOWER),
-			x if x == Cell::BEE_1_WITH_FLOWER as i32 => Ok(Cell::BEE_1_WITH_FLOWER),
-			x if x == Cell::FLOWER as i32 => Ok(Cell::FLOWER),
-			x if x == Cell::WALL as i32 => Ok(Cell::WALL),
-			x if x == Cell::HIVE_0 as i32 => Ok(Cell::HIVE_0),
-			x if x == Cell::HIVE_1 as i32 => Ok(Cell::HIVE_1),
-			x if x == Cell::OUTSIDE as i32 => Ok(Cell::OUTSIDE),
+			x if x == CellType::EMPTY as i32 => Ok(CellType::EMPTY),
+			x if x == CellType::BEE_0 as i32 => Ok(CellType::BEE_0),
+			x if x == CellType::BEE_1 as i32 => Ok(CellType::BEE_1),
+			x if x == CellType::BEE_0_WITH_FLOWER as i32 => Ok(CellType::BEE_0_WITH_FLOWER),
+			x if x == CellType::BEE_1_WITH_FLOWER as i32 => Ok(CellType::BEE_1_WITH_FLOWER),
+			x if x == CellType::FLOWER as i32 => Ok(CellType::FLOWER),
+			x if x == CellType::WALL as i32 => Ok(CellType::WALL),
+			x if x == CellType::HIVE_0 as i32 => Ok(CellType::HIVE_0),
+			x if x == CellType::HIVE_1 as i32 => Ok(CellType::HIVE_1),
+			x if x == CellType::OUTSIDE as i32 => Ok(CellType::OUTSIDE),
 			_ => Err(()),
 		}
 	}

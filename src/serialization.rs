@@ -2,7 +2,7 @@
 
 use crate::common::{ 
     AgentInfo, 
-    Cell, 
+    CellType, 
     Command, 
     MAX_COMMAND_LEN, 
     MAX_AGENT_INFO_LEN, 
@@ -13,14 +13,14 @@ use array2d::Array2D;
 
 /// Helper function that converts the cells portion of the serialized agent info string into
 /// a 2D array of Cells
-fn parse_cells_string(string: &str) -> Array2D<Cell> {
+fn parse_cells_string(string: &str) -> Array2D<CellType> {
     let mut cell_chars: Vec<char> = string.chars().collect();
     cell_chars.pop();
     let cells_i32: Vec<i32> = cell_chars.iter()
         .map(|&x| x.to_digit(10).unwrap() as i32)
         .collect::<Vec<i32>>();
-    let cells: Vec<Cell> = cells_i32.iter().map(|&x| x.try_into().unwrap()).collect();
-    let array: Array2D<Cell> = Array2D::from_row_major(&cells, VIEW_SIZE, VIEW_SIZE);
+    let cells: Vec<CellType> = cells_i32.iter().map(|&x| x.try_into().unwrap()).collect();
+    let array: Array2D<CellType> = Array2D::from_row_major(&cells, VIEW_SIZE, VIEW_SIZE);
     array
 }
 
