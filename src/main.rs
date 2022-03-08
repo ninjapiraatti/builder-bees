@@ -27,6 +27,8 @@ use crate::simple_agent::*;
 pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState) -> Command {
 	let bee_cell = info.cell_type(&Coords { row: VIEW_DISTANCE, col: VIEW_DISTANCE });
 
+	//TODO: Function that checks if strategy has to be changed.
+
 	// If the current bee holds a flower, check if the hive is adjacent
 	// and forage the flower to the hive if possible.
 	if bee_cell.has_flower() {

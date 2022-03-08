@@ -109,7 +109,8 @@ impl GameState {
 				let x = agent_info.col + col as i32 - VIEW_DISTANCE as i32;
 				if x >= 0 && x < NUM_COLS as i32 && y >= 0 && y < NUM_ROWS as i32 {
 					//println!("{:?}", self.map.cells.get(y,x).unwrap());
-					self.map.cells.set(y as usize, x as usize, Cell::from(*agent_info.cells.get(row as usize, col as usize).unwrap_or_else(|| &CellType::EMPTY)));
+					self.map.cells.set(y as usize, x as usize, Cell::from(*agent_info.cells.get(row as usize, col as usize)
+							.unwrap_or_else(|| &CellType::EMPTY)));
 				}
 			}
 		}
@@ -216,16 +217,18 @@ pub enum Action {
 #[derive(Clone)]
 pub struct Cell {
     pub celltype: CellType,
-    pub data_age: i32,
+	pub heat: f32,
     pub is_destination: bool,
+	pub is_target: bool,
 }
 
 impl Cell {
     pub fn new() -> Self {
         Self {
             celltype: CellType::EMPTY,
-            data_age: 0,
+			heat: 0.0, //Placeholder
             is_destination: false,
+			is_target: false,
         }
     }
 }
@@ -234,8 +237,9 @@ impl From<CellType> for Cell {
     fn from(v: CellType) -> Self {
         Cell {
             celltype: v,
-            data_age: 0,
+			heat: 0.0, //Placeholder
             is_destination: false,
+			is_target: false,
         }
     }
 }
