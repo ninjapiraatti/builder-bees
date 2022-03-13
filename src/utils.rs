@@ -54,7 +54,7 @@ pub fn print_heatmap(heatmap: &Array2D<f32>) {
 pub fn coords_to_dir(current: Coords, target: Coords) -> Direction {
 	let x = target.col as i32 - current.col as i32;
 	let y = target.row as i32 - current.row as i32;
-	println!("\x1b[96mX: {:?} | Y: {:?}\n\x1b[0m", x, y);
+	//println!("\x1b[96mX: {:?} | Y: {:?}\n\x1b[0m", x, y);
 	if x == 0 {
 		if y > 0 {
 			return Direction::S;
