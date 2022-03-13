@@ -83,6 +83,7 @@ pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Dir
 }
 
 */
+
 pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Direction> {
 	//println!("\x1b[96m\n\n\nHenlo! Starting the astar.\n\x1b[0m");
 	println!("\x1b[96mStarting pathfind. \x1b[0m");
@@ -94,7 +95,6 @@ pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Dir
 	let mut open_set = BTreeMap::new(); // Frontier
 	//let mut open_set: Vec<Coords> = vec![coords.clone()];
 	//let mut open_set = HashMap::<Coords, i32>::new(); // Frontier
-	let mut closed_set = HashSet::new();
 	let mut g_score = HashMap::new(); // Cost so far
 	let mut f_score = HashMap::new();
 	let mut came_from = HashMap::new(); // Came from
@@ -111,9 +111,9 @@ pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Dir
 		is_target: false,
 	};
 
-	g_score.insert(coords, 0);
 	let heuristic = heuristic_cost_estimate(&coords, &destination);
-	f_score.insert(destination, heuristic);
+	g_score.insert(coords, 0);
+	f_score.insert(coords, heuristic);
 	//println!("\x1b[96mFscore {:?} with coords {:?} \x1b[0m", f_score[&coords], coords);
 	open_set.insert(heuristic, coords);
 	//println!("\x1b[96mHeuristic: {:?} \x1b[0m", heuristic);
@@ -121,7 +121,9 @@ pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Dir
 		//let current = open_set.get(&0).unwrap_or_else(|| panic!("No current"));
 		//let current = open_set.keys().next().unwrap().clone(); // This def aint right
 		//let current = open_set.remove(&open_set.keys().next_back().unwrap().clone()).unwrap();
-		let current = open_set.remove(&open_set.keys().next_back().unwrap().clone()).unwrap();
+		let current = open_set.remove(&open_set.keys().next().unwrap().clone()).unwrap();
+		//let current = open_set.remove(&open_set.keys().next().unwrap().clone()).unwrap();
+		debug_count = open_set.len();
 		if current == *destination {
 			println!("\x1b[96m\nACTUALLY FOUND A PATH!\n\x1b[0m");
 			//println!("\x1b[96mCame from: {:?} \x1b[0m", came_from.len());
@@ -136,29 +138,22 @@ pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Dir
 			*/
 			return Some(coords_to_dir(coords, current));
 		}
-		closed_set.insert(current);
 		for direction in Direction::into_enum_iter() {
 			let adjacent = current.adjacent_coord(&direction);
 			match adjacent {
 				Some(v) => {
-					//let y = v.row;
-					//let x = v.col;
-					let value = heuristic_cost_estimate(&v, &destination);
 					let cell = map.cells.get(v.row, v.col);
 					debug_coords = v.clone();
-					//debug_cell = cell.unwrap().clone();
 					match cell {
 						Some(c) => {
 							let debug_cell = c;
 							if c.celltype == CellType::EMPTY {
-								let tentative_g_score = g_score.get(&current).unwrap_or(&10000000) + value;
-								//debug_count = tentative_g_score;
-								if !open_set.contains_key(&tentative_g_score) || tentative_g_score < g_score[&v] { // is tentative_g_score the right comparison here?
-									debug_count += 1;
-									came_from.insert(v, coords);
+								let heur_value = heuristic_cost_estimate(&v, &destination);
+								let tentative_g_score = g_score.get(&current).unwrap_or(&1000000) + heur_value;
+								if !open_set.contains_key(&heur_value) || tentative_g_score < *g_score.get(&v).unwrap_or(&1000000) {
+									came_from.insert(current, v);
 									g_score.insert(v, tentative_g_score);
-									//f_score.insert(v, g_score[&v] + heuristic_cost_estimate(&v, &destination));
-									open_set.insert(g_score[&v] + heuristic_cost_estimate(&v, &destination), v);
+									open_set.insert(heur_value, v);
 								}
 							}
 						}
@@ -174,15 +169,17 @@ pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Dir
 				},
 			}
 		}
-		println!("\x1b[96mEnd of Direction iteration. Debug number: {:?} \x1b[0m", debug_count);
-		println!("\x1b[96mCame from: {:?} \x1b[0m", came_from);
+		//println!("\x1b[96mEnd of Direction iteration. Debug number: {:?} \x1b[0m", debug_count);
+		//println!("\x1b[96mCurrent: {:?} \x1b[0m", current);
+		//println!("\x1b[96mDestination: {:?} \x1b[0m", destination);
+		//println!("\x1b[96mOpen set length: {:?} \x1b[0m", debug_count);
 	}
 	//println!("\x1b[96mBee: {:?} \x1b[0m", info.bee);
 	//println!("\x1b[96mCame from: {:?} \x1b[0m", came_from);
-	//println!("\x1b[96mDebug number: {:?} \x1b[0m", debug_count);
-	//println!("\x1b[96mDebug number 2: {:?} \x1b[0m", debug_count2);
-	//println!("\x1b[96mDebug thing: {:?} \x1b[0m", debug_coords);
-	//println!("\x1b[96mDebug cell: {:?} \x1b[0m", debug_cell);
+	println!("\x1b[96mDebug number: {:?} \x1b[0m", debug_count);
+	println!("\x1b[96mDebug number 2: {:?} \x1b[0m", debug_count2);
+	println!("\x1b[96mDebug thing: {:?} \x1b[0m", debug_coords);
+	println!("\x1b[96mDebug cell: {:?} \x1b[0m", debug_cell);
 	println!("\x1b[96mOpen Set is empty.\x1b[0m");
 	None
 }

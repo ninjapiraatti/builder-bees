@@ -58,7 +58,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 			None => (),
 		}*/
 		let opponent_col = if info.player == 1 { 2 } else { NUM_COLS - 3 };
-		let pathfind_direction = pathfind(info, &gamestate.map, &Coords { row: 12, col: opponent_col });
+		let pathfind_direction = pathfind(info, &gamestate.map, &Coords { row: 9, col: opponent_col });
 		println!("\x1b[96mdir: {:?}\x1b[0m", pathfind_direction);
 		match pathfind_direction {
 			Some(v) => return Command {
