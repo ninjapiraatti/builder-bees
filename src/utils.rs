@@ -1,6 +1,6 @@
 use array2d::Array2D;
 
-use crate::common::{ Map, Cell, CellType, CellType::*, NUM_ROWS, NUM_COLS };
+use crate::common::{ Map, Cell, CellType, Coords, Direction, CellType::*, NUM_ROWS, NUM_COLS };
 
 pub fn print_map(map: &Map) {
 	for row in 0..NUM_ROWS {
@@ -49,4 +49,37 @@ pub fn print_heatmap(heatmap: &Array2D<f32>) {
 			print!("{:.2}  ", heatmap.get(row, col).unwrap_or_else(|| &100.0));
 		}
 	}
+}
+
+pub fn coords_to_dir(current: Coords, target: Coords) -> Direction {
+	let x = target.col as i32 - current.col as i32;
+	let y = target.row as i32 - current.row as i32;
+	println!("\x1b[96mX: {:?} | Y: {:?}\n\x1b[0m", x, y);
+	if x == 0 {
+		if y > 0 {
+			return Direction::S;
+		} else {
+			return Direction::N;
+		}
+	}
+	if y == 0 {
+		if x > 0 {
+			return Direction::E;
+		} else {
+			return Direction::W;
+		}
+	}
+	if x > 0 && y > 0 {
+		return Direction::SE;
+	}
+	if x > 0 && y < 0 {
+		return Direction::NE;
+	}
+	if x < 0 && y > 0 {
+		return Direction::SW;
+	}
+	if x < 0 && y < 0 {
+		return Direction::NW;
+	}
+	Direction::N 
 }

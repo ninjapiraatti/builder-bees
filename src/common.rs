@@ -132,6 +132,7 @@ impl Command {
 	}
 }
 
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
 pub struct Coords {
 	pub row: usize,
 	pub col: usize,
@@ -263,6 +264,14 @@ impl CellType {
 		if self.eq(&CellType::BEE_0_WITH_FLOWER) {
 			true
 		} else if self.eq(&CellType::BEE_1_WITH_FLOWER) {
+			true
+		} else {
+			false
+		}
+	}
+
+	pub fn is_wall(&self) -> bool {
+		if self.eq(&CellType::WALL) {
 			true
 		} else {
 			false

@@ -73,14 +73,14 @@ fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
 		let info: AgentInfo = get_agent_info(stream).expect("Game over.");
 		let opponent_col = if info.player == 1 { 3 } else { 27 };
 		heatmap = generate_heatmap(NUM_COLS, NUM_ROWS, opponent_col, 13, heatmap_initialized);
-		print_heatmap(&heatmap);
+		//print_heatmap(&heatmap);
 		heatmap_initialized = true;
-		println!("{:?}", info);
+		//println!("{:?}", info);
 		gamestate.update(&info);
 		let command: Command = think(&info, &heatmap, &mut gamestate);
-		println!("{:?}", command);
+		//println!("{:?}", command);
 		send_agent_command(command, stream)?;
-		print_map(&gamestate.map);
+		//print_map(&gamestate.map);
 	}
 	unreachable!("The loop should always run");
 	Ok(())

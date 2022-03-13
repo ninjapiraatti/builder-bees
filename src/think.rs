@@ -91,7 +91,7 @@ pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> 
 					min_heat = *heat;
 					max_direction = direction;
 				}
-				println!("{:?} | {:?}", max_direction, heat);
+				//println!("{:?} | {:?}", max_direction, heat);
 			},
 			None => continue,
 		}

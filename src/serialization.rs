@@ -29,7 +29,7 @@ pub fn deserialize_agent_info(buffer: &String) -> AgentInfo {
     if buffer.len() >= MAX_AGENT_INFO_LEN { panic!("Deserialization fail 0") };
 
     let params: Vec<&str> = buffer.split(',').collect();
-    for param in params.iter() { println!("{}", param) };
+    //for param in params.iter() { println!("{}", param) };
     AgentInfo {
         turn: params[0].parse::<i32>().unwrap(),
         player: params[1].parse::<i32>().unwrap(),

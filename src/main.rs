@@ -5,8 +5,10 @@ mod think;
 mod bee;
 mod simple_agent;
 mod utils;
+mod pathfind;
 
 use std::env;
+use std::process;
 use crate::common::{ 
     Action,
     AgentInfo,
@@ -20,6 +22,7 @@ use crate::common::{
     VIEW_DISTANCE
 };
 use array2d::Array2D;
+use pathfind::pathfind;
 use crate::think::*;
 use crate::simple_agent::*;
 
@@ -31,6 +34,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 
 	// If the current bee holds a flower, check if the hive is adjacent
 	// and forage the flower to the hive if possible.
+	//let test_coords = Coords { row: 5, col: 5 };
 	if bee_cell.has_flower() {
 		let hive_direction = find_neighbour(info, &hive_cell(info.player));
 		match hive_direction {
@@ -43,6 +47,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	// If the current bee doesn't hold a flower, find the direction in which
     // a wall should be built, and move toward it.
 	} else {
+		/*
 		let wall_direction = find_heat(info, &heatmap);
 		//let flower_direction = find_neighbour(info, &CellType::FLOWER);
 		match wall_direction {
@@ -51,9 +56,18 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 				direction: v,
 			},
 			None => (),
+		}*/
+		let opponent_col = if info.player == 1 { 2 } else { NUM_COLS - 3 };
+		let pathfind_direction = pathfind(info, &gamestate.map, &Coords { row: 12, col: opponent_col });
+		println!("\x1b[96mdir: {:?}\x1b[0m", pathfind_direction);
+		match pathfind_direction {
+			Some(v) => return Command {
+				action: Action::MOVE,
+				direction: v,
+			},
+			None => (),
 		}
 	}
-
 	// Otherwise move in a random direction.
 	let random_direction: Direction = rand::random();
 	Command {
