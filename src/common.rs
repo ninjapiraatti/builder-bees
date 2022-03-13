@@ -77,7 +77,7 @@ pub struct Map {
 impl Map {
 	pub fn new() -> Self {
 		Self {
-			cells: Array2D::filled_with(Cell::new(), NUM_COLS, NUM_ROWS),
+			cells: Array2D::filled_with(Cell::new(), NUM_ROWS, NUM_COLS),
 			//width: NUM_COLS,
 			//height: NUM_ROWS,
 		}
@@ -215,7 +215,7 @@ pub enum Action {
 	GUARD,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Cell {
     pub celltype: CellType,
 	pub heat: f32,
