@@ -22,7 +22,7 @@ pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Dir
 	};
 	let mut open_set = BTreeMap::new(); // Frontier
 	let mut g_score = HashMap::new(); // Cost so far
-	let mut came_from = HashMap::<Coords, Coords>::new(); // Where did you come from Cotton Eye Joe?
+	let mut came_from = HashMap::<Coords, (Coords, i32)>::new(); // Where did you come from Cotton Eye Joe?
 
 	let mut debug_count = 0;
 	let mut debug_count2 = 0;
@@ -46,8 +46,8 @@ pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Dir
 		if current == *destination {
 			println!("\x1b[96m\nACTUALLY FOUND A PATH!\n\x1b[0m");
 			//println!("\x1b[96mCame from: {:?} \x1b[0m", came_from.len());
-			println!("\x1b[96mDebug number: {:?} \x1b[0m", debug_count);
-			println!("\x1b[96mCame from: {:?} \x1b[0m", came_from);
+			//println!("\x1b[96mDebug number: {:?} \x1b[0m", debug_count);
+			//println!("\x1b[96mCame from: {:?} \x1b[0m", came_from);
 			/*
 			let mut path = Vec::new();
 			let mut temp = current;
@@ -75,7 +75,7 @@ pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Dir
 								let heur_value = heuristic_cost_estimate(&v, &destination);
 								let tentative_g_score = g_score.get(&current).unwrap_or(&1000000) + heur_value;
 								if !open_set.contains_key(&heur_value) || tentative_g_score < *g_score.get(&v).unwrap_or(&1000000) {
-									came_from.insert(current, v);
+									came_from.insert(current, (v, heur_value));
 									g_score.insert(v, tentative_g_score);
 									open_set.insert(heur_value, v);
 								}
@@ -97,7 +97,10 @@ pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Dir
 		//println!("\x1b[96mCurrent: {:?} \x1b[0m", current);
 		//println!("\x1b[96mDestination: {:?} \x1b[0m", destination);
 		//println!("\x1b[96mCame from: {:?} \x1b[0m", came_from);
-		println!("\x1b[96mDebug thing: {:?} \x1b[0m", debug_coords);
+		if open_set.len() == 3 {
+			println!("\x1b[96mCurrent: {:?} \x1b[0m", current);
+			println!("\x1b[96mOpen set: {:?} \x1b[0m", open_set);
+		}
 	}
 	//println!("\x1b[96mBee: {:?} \x1b[0m", info.bee);
 	//println!("\x1b[96mCame from: {:?} \x1b[0m", came_from);
