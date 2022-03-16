@@ -84,7 +84,6 @@ impl Map {
 	}
 }
 
-
 pub struct GameState {
 	pub map: Map,
 	pub bees: Vec<Bee>,
@@ -115,6 +114,15 @@ impl GameState {
 			}
 		}
 	}
+
+    pub fn get_targets(&self) -> Vec<Coords> {
+        let mut targets: Vec<Coords> = Vec::new();
+        for bee in &self.bees {
+            let target = bee.target;
+            if target.is_some() { targets.push(target.unwrap().clone()) };
+        }
+        targets
+    }
 }
 
 #[derive(Debug)]

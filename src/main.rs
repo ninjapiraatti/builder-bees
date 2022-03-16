@@ -31,8 +31,11 @@ use crate::pathfind::*;
 /// The main think function of our agent. 
 pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState) -> Command {
 	let bee_cell = info.cell_type(&Coords { row: VIEW_DISTANCE, col: VIEW_DISTANCE });
+    let targets = gamestate.get_targets();
     let mut bee = gamestate.bees.get_mut(info.bee as usize).unwrap();
     bee.set_position(info.row as usize, info.col as usize);
+    //bee.check_target(&targets); // Jostain syystä enemmän seinää rakentuu kun ei käytä tätä
+    //funktiota. 
 
 
 	//TODO: Function that checks if strategy has to be changed.
@@ -74,10 +77,10 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
             return command;
         }
         if bee.target.as_ref().is_none() {
-            let target = find_target(info, heatmap, &gamestate.map.cells);
+            let target = find_target(info, heatmap, &gamestate.map.cells, &targets);
             if target.is_some() {
                 bee.set_target(target);
-            }
+            } 
         }
         if bee.role.as_ref().unwrap().eq(&Role::Build) {
 	        let opponent_col = if info.player == 1 { 2 } else { NUM_COLS - 3 };

@@ -101,7 +101,7 @@ pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> 
 }
 
 /// Finds wall building target for builder bee.
-pub fn find_target(info: &AgentInfo, heatmap: &Array2D<f32>, map: &Array2D<Cell>) -> Option<Coords> {
+pub fn find_target(info: &AgentInfo, heatmap: &Array2D<f32>, map: &Array2D<Cell>, targets: &Vec<Coords>) -> Option<Coords> {
 	let mut min_heat = 100.0;
     let mut min_row = 100;
     let mut min_col = 100;
@@ -109,6 +109,10 @@ pub fn find_target(info: &AgentInfo, heatmap: &Array2D<f32>, map: &Array2D<Cell>
         for col in 0..NUM_COLS {
             let cell = map.get(row, col).unwrap();
             if cell.celltype.eq(&CellType::WALL) || cell.celltype.is_hive() { continue };
+            let current = Coords { row: row, col: col };
+            for target in targets {
+                if target.eq(&current) { continue };
+            }
             let heat = heatmap.get(row, col).unwrap_or(&100.0);
             if heat < &min_heat {
                 min_heat = *heat;

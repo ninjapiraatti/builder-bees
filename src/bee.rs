@@ -59,6 +59,20 @@ impl Bee {
             false
         }
     }
+
+    pub fn check_target(&mut self, targets: &Vec<Coords>) {
+        if self.target.is_some() {
+            let current = self.target.unwrap();
+            let mut i = 0;
+            for target in targets {
+                if i == self.bee_id { continue };
+                i += 1;
+                if current.eq(&target) {
+                    self.target = None
+                };
+            }
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
