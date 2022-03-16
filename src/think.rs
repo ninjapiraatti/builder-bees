@@ -41,7 +41,7 @@ pub fn can_move_in_direction(info: &AgentInfo, direction: &Direction) -> bool {
 }
 
 /// Gets the direction that can be used to move toward destination.
-pub fn get_direction_to_destination(destination: &Coords, position: &Coords) -> Option<Direction> {
+pub fn get_direction(destination: &Coords, position: &Coords) -> Option<Direction> {
     match destination {
         &Coords { row, col } if row < position.row && col == position.col => Some(Direction::N),
         &Coords { row, col } if row < position.row && col > position.col => Some(Direction::NE),
@@ -97,6 +97,26 @@ pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> 
 		}
 	}
 	Some(max_direction)
+}
+
+/// Finds wall building target for builder bee.
+pub fn find_target(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Coords> {
+	let mut min_heat = 100.0;
+    let mut min_row = 100;
+    let mut min_col = 100;
+    println!("{:?}", heatmap);
+    for row in 0..NUM_ROWS {
+        for col in 0..NUM_COLS {
+            let heat = heatmap.get(row, col).unwrap_or(&100.0);
+            if heat < &min_heat {
+                min_heat = *heat;
+                min_row = row;
+                min_col = col;
+            }
+        }
+    }
+    if min_row == 100 || min_col == 100 { return None };
+    Some(Coords { row: min_row, col: min_col })
 }
 
 /// If a flower is in view, return its coordinates.

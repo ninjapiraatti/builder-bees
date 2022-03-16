@@ -9,6 +9,7 @@ mod pathfind;
 
 use std::env;
 use std::process;
+use array2d::Array2D;
 use crate::common::{ 
     Action,
     AgentInfo,
@@ -21,7 +22,7 @@ use crate::common::{
     NUM_ROWS,
     VIEW_DISTANCE
 };
-use array2d::Array2D;
+use crate::bee::*;
 use crate::think::*;
 use crate::simple_agent::*;
 use crate::utils::coords_to_dir;
@@ -30,6 +31,9 @@ use crate::pathfind::*;
 /// The main think function of our agent. 
 pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState) -> Command {
 	let bee_cell = info.cell_type(&Coords { row: VIEW_DISTANCE, col: VIEW_DISTANCE });
+    let mut bee = gamestate.bees.get_mut(info.bee as usize).unwrap();
+    bee.set_position(info.row as usize, info.col as usize);
+
 
 	//TODO: Function that checks if strategy has to be changed.
 
@@ -58,12 +62,26 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 			},
 			None => (),
 		}*/
-	    let opponent_col = if info.player == 1 { 2 } else { NUM_COLS - 3 };
-        let opponent_hive = Coords { row: 9, col: opponent_col };
-        let command: Option<Command> = pathfind(info, &gamestate.map, &opponent_hive);
-        match command {
-			Some(v) => return v,
-			None => (),
+        if bee.at_target() {
+            return Command {
+                action: Action::BUILD,
+                direction: get_direction(bee.target.as_ref().unwrap(), &bee.position).unwrap(),
+            }
+        }
+        if bee.target.as_ref().is_none() {
+            let target = find_target(info, heatmap);
+            if target.is_some() {
+                bee.set_target(target.unwrap());
+            }
+        }
+        if bee.role.as_ref().unwrap().eq(&Role::Build) {
+	        let opponent_col = if info.player == 1 { 2 } else { NUM_COLS - 3 };
+            let opponent_hive = Coords { row: 9, col: opponent_col };
+            let command: Option<Command> = pathfind(info, &gamestate.map, bee.target.as_ref().unwrap_or(&opponent_hive));
+            match command {
+		    	Some(v) => return v,
+		    	None => (),
+            }
         }
 	}
 	// Otherwise move in a random direction.

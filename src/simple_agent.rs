@@ -14,7 +14,7 @@ use crate::think::{
     can_move_in_direction,
     find_neighbour,
     find_flower_in_view,
-    get_direction_to_destination,
+    get_direction,
     hive_coords,
     hive_cell
 };
@@ -58,7 +58,7 @@ pub fn think_simple_agent(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &
     if !bee_cell.has_flower() {
         if current_bee.destination.is_some() {
             let bee_destination: &Coords = current_bee.destination.as_ref().unwrap();
-            let direction = get_direction_to_destination(bee_destination, &bee_position);
+            let direction = get_direction(bee_destination, &bee_position);
             match direction {
                 Some(v) if can_move_in_direction(info, &v) => return Command {
                     action: Action::MOVE,
@@ -77,7 +77,7 @@ pub fn think_simple_agent(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &
     //TODO: When bee has flower, move towards hive.
     } else {
         current_bee.destination = None;
-        let hive_direction = get_direction_to_destination(&hive_coords(info.player), &bee_position);
+        let hive_direction = get_direction(&hive_coords(info.player), &bee_position);
         match hive_direction {
             Some(v) if can_move_in_direction(info, &v) => return Command {
                 action: Action::MOVE,

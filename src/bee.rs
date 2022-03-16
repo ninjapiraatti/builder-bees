@@ -1,5 +1,6 @@
 use crate::common::{ AgentInfo, Coords };
 
+#[derive(Debug)]
 pub struct Bee {
     pub bee_id: i32,
     pub has_flower: bool,
@@ -18,7 +19,7 @@ impl Bee {
             position: Coords { row: 0, col: 0 },
             destination: None,
             target: None,
-            role: None,
+            role: Some(Role::Build),
             path: None,
         }
     }
@@ -41,12 +42,26 @@ impl Bee {
         self.destination = Some(destination);
     }
 
+    pub fn set_position(&mut self, row: usize, col: usize) {
+        self.position.row = row;
+        self.position.col = col;
+    }
     pub fn set_target(&mut self, target: Coords) {
         self.target = Some(target);
     }
 
+    pub fn at_target(&mut self) -> bool {
+        println!("{:?}", self);
+        if self.target.is_none() { return false };
+        if self.target.unwrap().distance(&self.position) == 1 {
+            true
+        } else {
+            false
+        }
+    }
 }
 
+#[derive(Debug, PartialEq)]
 pub enum Role {
     Collect,
     Build,

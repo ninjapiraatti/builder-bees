@@ -58,14 +58,17 @@ pub fn pathfind(info: &AgentInfo, map: &Map, dest_coord: &Coords) -> Option<Comm
 	let path = astar(&Pos(info.row as i32, info.col as i32), |p| p.neighbours(map), |p| p.distance(&destination), |p| *p == destination);
 	match path {
 		Some(v) => {
-            let pos = v.0.get(1).unwrap();
-            let next = Coords { row: pos.0 as usize, col: pos.1 as usize };
-            let current = Coords { row: info.row as usize, col: info.col as usize };
-            return Some(Command {
-			    action: Action::MOVE,
-			    direction: coords_to_dir(current, next),
-                })
-            },
+            if let Some(pos) = v.0.get(1) {
+                let next = Coords { row: pos.0 as usize, col: pos.1 as usize };
+                let current = Coords { row: info.row as usize, col: info.col as usize };
+                return Some(Command {
+			        action: Action::MOVE,
+			        direction: coords_to_dir(current, next),
+                    })
+            } else {
+                return None
+            }
+        },
 		None => None,
 	}
 }

@@ -186,11 +186,11 @@ impl Coords {
         println!("{:?}", neighbours);
         neighbours
       }
-
-	fn distance(&self, other: &Coords) -> usize {
-		((self.0 - other.0).abs() + (self.1 - other.1).abs()) as usize
-	}
     */
+
+	pub fn distance(&self, other: &Coords) -> usize {
+		((self.row as i32 - other.row as i32).abs() + (self.col as i32 - other.col as i32).abs()) as usize
+	}
 }
 
 #[derive(Debug, IntoEnumIterator)]
