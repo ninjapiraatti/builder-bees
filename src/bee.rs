@@ -52,9 +52,8 @@ impl Bee {
     }
 
     pub fn at_target(&mut self) -> bool {
-        println!("{:?}", self);
         if self.target.is_none() { return false };
-        if self.target.unwrap().distance(&self.position) == 1 {
+        if self.target.unwrap().is_adjacent(&self.position) {
             true
         } else {
             false

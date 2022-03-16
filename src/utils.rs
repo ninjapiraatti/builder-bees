@@ -39,6 +39,7 @@ pub fn generate_heatmap(width: usize, height: usize, originx: usize, originy: us
 			}
 		}
 	}
+    heatmap.set(originx, originy, 100.0);
 	heatmap
 }
 

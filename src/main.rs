@@ -25,7 +25,7 @@ use crate::common::{
 use crate::bee::*;
 use crate::think::*;
 use crate::simple_agent::*;
-use crate::utils::coords_to_dir;
+use crate::utils::{ coords_to_dir, print_heatmap };
 use crate::pathfind::*;
 
 /// The main think function of our agent. 
@@ -65,6 +65,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 
         // If bee is next to where it should build a wall, build the wall and reset target.
         if bee.at_target() {
+            println!("{:?}", bee);
             let command = Command {
                 action: Action::BUILD,
                 direction: get_direction(bee.target.as_ref().unwrap(), &bee.position).unwrap(),

@@ -108,7 +108,7 @@ pub fn find_target(info: &AgentInfo, heatmap: &Array2D<f32>, map: &Array2D<Cell>
     for row in 0..NUM_ROWS {
         for col in 0..NUM_COLS {
             let cell = map.get(row, col).unwrap();
-            if cell.celltype.eq(&CellType::WALL) { continue };
+            if cell.celltype.eq(&CellType::WALL) || cell.celltype.is_hive() { continue };
             let heat = heatmap.get(row, col).unwrap_or(&100.0);
             if heat < &min_heat {
                 min_heat = *heat;

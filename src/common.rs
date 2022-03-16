@@ -132,67 +132,6 @@ impl Command {
 	}
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
-pub struct Coords {
-	pub row: usize,
-	pub col: usize,
-}
-
-impl Coords {
-	/// Given a direction, returns the coords of the adjacent cell
-	/// in that direction wrapped in Option.
-	pub fn adjacent_coord(&self, direction: &Direction) -> Option<Coords> {
-		match direction {
-			Direction::N if self.row == 0 => None,
-			Direction::N => Some(Coords { row: self.row - 1, col: self.col }),
-			Direction::NE if self.row == 0 || self.col == NUM_COLS - 1 => None,
-			Direction::NE => Some(Coords { row: self.row - 1, col: self.col + 1 }),
-			Direction::E if self.col == NUM_COLS - 1 => None,
-			Direction::E => Some(Coords { row: self.row, col: self.col + 1 }),
-			Direction::SE if self.row == NUM_ROWS - 1 || self.col == NUM_COLS + 1 => None,
-			Direction::SE => Some(Coords { row: self.row + 1, col: self.col + 1 }),
-			Direction::S if self.row == NUM_ROWS + 1 => None,
-			Direction::S => Some(Coords { row: self.row + 1, col: self.col }),
-			Direction::SW if self.row == NUM_ROWS + 1 || self.col == 0 => None,
-			Direction::SW => Some(Coords { row: self.row + 1, col: self.col - 1 }),
-			Direction::W if self.col == 0 => None,
-			Direction::W => Some(Coords { row: self.row, col: self.col - 1 }),
-			Direction::NW if self.row == 0 || self.col == 0 => None,
-			Direction::NW => Some(Coords { row: self.row - 1, col: self.col - 1 }),
-		}
-	}
-
-    /*
-    // Returns vec of empty neighbour coords
-    fn neighbours(&self, map: &Map) -> Vec<(Coords, usize)> {
-        let neighbours: Vec<(Coords, usize)> = Vec::new();
-		for direction in Direction::into_enum_iter() {
-			let adjacent = self.adjacent_coord(&direction);
-			match adjacent {
-				Some(v) => {
-					let cell = map.cells.get(v.row, v.col);
-					match cell {
-						Some(c) => {
-							if c.celltype == CellType::EMPTY {
-                                neighbours.push((v, 1));
-							}
-						}
-						None => { continue; },
-					}					
-				}
-				None => { continue; },
-			}
-		}
-        println!("{:?}", neighbours);
-        neighbours
-      }
-    */
-
-	pub fn distance(&self, other: &Coords) -> usize {
-		((self.row as i32 - other.row as i32).abs() + (self.col as i32 - other.col as i32).abs()) as usize
-	}
-}
-
 #[derive(Debug, IntoEnumIterator)]
 pub enum Direction {
 	N,
@@ -234,6 +173,53 @@ impl Distribution<Direction> for Standard {
 			6 => Direction::W,
 			_ => Direction::NW,
 		}
+	}
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
+pub struct Coords {
+	pub row: usize,
+	pub col: usize,
+}
+
+impl Coords {
+	/// Given a direction, returns the coords of the adjacent cell
+	/// in that direction wrapped in Option.
+	pub fn adjacent_coord(&self, direction: &Direction) -> Option<Coords> {
+		match direction {
+			Direction::N if self.row == 0 => None,
+			Direction::N => Some(Coords { row: self.row - 1, col: self.col }),
+			Direction::NE if self.row == 0 || self.col == NUM_COLS - 1 => None,
+			Direction::NE => Some(Coords { row: self.row - 1, col: self.col + 1 }),
+			Direction::E if self.col == NUM_COLS - 1 => None,
+			Direction::E => Some(Coords { row: self.row, col: self.col + 1 }),
+			Direction::SE if self.row == NUM_ROWS - 1 || self.col == NUM_COLS + 1 => None,
+			Direction::SE => Some(Coords { row: self.row + 1, col: self.col + 1 }),
+			Direction::S if self.row == NUM_ROWS + 1 => None,
+			Direction::S => Some(Coords { row: self.row + 1, col: self.col }),
+			Direction::SW if self.row == NUM_ROWS + 1 || self.col == 0 => None,
+			Direction::SW => Some(Coords { row: self.row + 1, col: self.col - 1 }),
+			Direction::W if self.col == 0 => None,
+			Direction::W => Some(Coords { row: self.row, col: self.col - 1 }),
+			Direction::NW if self.row == 0 || self.col == 0 => None,
+			Direction::NW => Some(Coords { row: self.row - 1, col: self.col - 1 }),
+		}
+	}
+
+    pub fn is_adjacent(&self, other: &Coords) -> bool {
+		for direction in Direction::into_enum_iter() {
+			let adjacent = self.adjacent_coord(&direction);
+			match adjacent {
+				Some(v) => { if v.eq(other) { return true } },
+				None => continue,
+            }
+        }
+        false
+    }
+
+    /// Manhattan distance
+	pub fn distance(&self, other: &Coords) -> usize {
+		((self.row as i32 - other.row as i32).abs() + (self.col as i32 - other.col as i32).abs()) as usize
 	}
 }
 
@@ -302,6 +288,14 @@ impl CellType {
 
 	pub fn is_wall(&self) -> bool {
 		if self.eq(&CellType::WALL) {
+			true
+		} else {
+			false
+		}
+	}
+
+	pub fn is_hive(&self) -> bool {
+		if self.eq(&CellType::HIVE_0) || self.eq(&CellType::HIVE_1) {
 			true
 		} else {
 			false
