@@ -2,6 +2,7 @@
 
 use crate::common::{
     AgentInfo,
+    Cell,
     CellType,
     Coords,
     Direction,
@@ -100,13 +101,14 @@ pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> 
 }
 
 /// Finds wall building target for builder bee.
-pub fn find_target(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Coords> {
+pub fn find_target(info: &AgentInfo, heatmap: &Array2D<f32>, map: &Array2D<Cell>) -> Option<Coords> {
 	let mut min_heat = 100.0;
     let mut min_row = 100;
     let mut min_col = 100;
-    println!("{:?}", heatmap);
     for row in 0..NUM_ROWS {
         for col in 0..NUM_COLS {
+            let cell = map.get(row, col).unwrap();
+            if cell.celltype.eq(&CellType::WALL) { continue };
             let heat = heatmap.get(row, col).unwrap_or(&100.0);
             if heat < &min_heat {
                 min_heat = *heat;

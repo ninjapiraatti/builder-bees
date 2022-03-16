@@ -46,8 +46,9 @@ impl Bee {
         self.position.row = row;
         self.position.col = col;
     }
-    pub fn set_target(&mut self, target: Coords) {
-        self.target = Some(target);
+
+    pub fn set_target(&mut self, target: Option<Coords>) {
+        self.target = target;
     }
 
     pub fn at_target(&mut self) -> bool {

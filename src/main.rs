@@ -62,16 +62,20 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 			},
 			None => (),
 		}*/
+
+        // If bee is next to where it should build a wall, build the wall and reset target.
         if bee.at_target() {
-            return Command {
+            let command = Command {
                 action: Action::BUILD,
                 direction: get_direction(bee.target.as_ref().unwrap(), &bee.position).unwrap(),
-            }
+            };
+            bee.set_target(None);
+            return command;
         }
         if bee.target.as_ref().is_none() {
-            let target = find_target(info, heatmap);
+            let target = find_target(info, heatmap, &gamestate.map.cells);
             if target.is_some() {
-                bee.set_target(target.unwrap());
+                bee.set_target(target);
             }
         }
         if bee.role.as_ref().unwrap().eq(&Role::Build) {
