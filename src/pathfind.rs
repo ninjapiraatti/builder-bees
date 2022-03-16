@@ -1,6 +1,8 @@
 use crate::common::{ 
+        Action,
 		AgentInfo,
 		Coords,
+        Command,
 		Direction,
 		CellType,
 		Cell,
@@ -13,20 +15,76 @@ use std::collections::{
 };
 use enum_iterator::IntoEnumIterator;
 use crate::utils::{coords_to_dir};
+use pathfinding::astar;
 
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+/// The a-star algorithm requires the use of a tuple struct. Pos is used for
+/// this purpose, as a tuple struct version of Coords.
+pub struct Pos(pub i32, pub i32);
+
+impl Pos {
+    // Returns vec of empty neighbour coords
+    pub fn neighbours(&self, map: &Map) -> Vec<(Pos, usize)> {
+        let mut neighbours: Vec<(Pos, usize)> = Vec::new();
+        let coord: &Coords = &Coords { row: self.0 as usize, col: self.1 as usize };
+		for direction in Direction::into_enum_iter() {
+			let adjacent = coord.adjacent_coord(&direction);
+			match adjacent {
+				Some(v) => {
+					let cell = map.cells.get(v.row, v.col);
+					match cell {
+						Some(c) => {
+							if c.celltype == CellType::EMPTY {
+                                let pos = Pos(v.row as i32, v.col as i32);
+                                neighbours.push((pos, 1));
+							}
+						}
+						None => { continue; },
+					}					
+				}
+				None => { continue; },
+			}
+		}
+        neighbours
+      }
+
+	pub fn distance(&self, other: &Pos) -> usize {
+		((self.0 - other.0).abs() + (self.1 - other.1).abs()) as usize
+	}
+}
+
+pub fn pathfind(info: &AgentInfo, map: &Map, dest_coord: &Coords) -> Option<Command> {
+    let destination = Pos(dest_coord.row as i32, dest_coord.col as i32);
+	let path = astar(&Pos(info.row as i32, info.col as i32), |p| p.neighbours(map), |p| p.distance(&destination), |p| *p == destination);
+	match path {
+		Some(v) => {
+            let pos = v.0.get(1).unwrap();
+            let next = Coords { row: pos.0 as usize, col: pos.1 as usize };
+            let current = Coords { row: info.row as usize, col: info.col as usize };
+            return Some(Command {
+			    action: Action::MOVE,
+			    direction: coords_to_dir(current, next),
+                })
+            },
+		None => None,
+	}
+}
+
+/*
 pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Direction> {
 	println!("\x1b[96mStarting pathfind. \x1b[0m");
 	let mut coords = Coords { // Original coords of the bee
 		row: info.row as usize,
 		col: info.col as usize,
 	};
-	let mut open_set = BTreeMap::new(); // Frontier
-	let mut g_score = HashMap::new(); // Cost so far
-	let mut came_from = HashMap::<Coords, (Coords, i32)>::new(); // Where did you come from Cotton Eye Joe?
+
+	let mut open_set = btreemap::new(); // frontier
+	let mut g_score = hashmap::new(); // cost so far
+	let mut came_from = hashmap::<coords, (coords, i32)>::new(); // where did you come from cotton eye joe?
 
 	let mut debug_count = 0;
 	let mut debug_count2 = 0;
-	let mut debug_coords = Coords {
+	let mut debug_coords = coords {
 		row: 0,
 		col: 0,
 	};
@@ -124,6 +182,7 @@ fn heuristic_cost_estimate(from: &Coords, to: &Coords) -> i32 {
 	//println!("\x1b[96mCostInt: {:?} \x1b[0m", cost_int);
 	cost_int
 }
+*/
 
 /* Never mind this for now.
 pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Direction> {

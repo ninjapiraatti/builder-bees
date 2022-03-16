@@ -193,42 +193,6 @@ impl Coords {
     */
 }
 
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct Pos(pub i32, pub i32);
-
-impl Pos {
-
-    // Returns vec of empty neighbour coords
-    pub fn neighbours(&self, map: &Map) -> Vec<(Pos, usize)> {
-        let mut neighbours: Vec<(Pos, usize)> = Vec::new();
-        let coord: &Coords = &Coords { row: self.0 as usize, col: self.1 as usize };
-		for direction in Direction::into_enum_iter() {
-			let adjacent = coord.adjacent_coord(&direction);
-			match adjacent {
-				Some(v) => {
-					let cell = map.cells.get(v.row, v.col);
-					match cell {
-						Some(c) => {
-							if c.celltype == CellType::EMPTY {
-                                let pos = Pos(v.row as i32, v.col as i32);
-                                neighbours.push((pos, 1));
-							}
-						}
-						None => { continue; },
-					}					
-				}
-				None => { continue; },
-			}
-		}
-        println!("{:?}", neighbours);
-        neighbours
-      }
-
-	pub fn distance(&self, other: &Pos) -> usize {
-		((self.0 - other.0).abs() + (self.1 - other.1).abs()) as usize
-	}
-}
-
 #[derive(Debug, IntoEnumIterator)]
 pub enum Direction {
 	N,
