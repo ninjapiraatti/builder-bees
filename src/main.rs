@@ -5,7 +5,6 @@ mod think;
 mod bee;
 mod simple_agent;
 mod utils;
-mod pathfind;
 
 use std::env;
 use std::process;
@@ -17,14 +16,16 @@ use crate::common::{
     Coords,
     Direction,
     GameState,
+    Pos,
     NUM_COLS,
     NUM_ROWS,
     VIEW_DISTANCE
 };
 use array2d::Array2D;
-use pathfind::pathfind;
 use crate::think::*;
 use crate::simple_agent::*;
+use crate::utils::coords_to_dir;
+use pathfinding::astar;
 
 /// The main think function of our agent. 
 pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState) -> Command {
@@ -58,13 +59,20 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 			None => (),
 		}*/
 		let opponent_col = if info.player == 1 { 2 } else { NUM_COLS - 3 };
-		let pathfind_direction = pathfind(info, &gamestate.map, &Coords { row: 9, col: opponent_col });
-		println!("\x1b[96mdir: {:?}\x1b[0m", pathfind_direction);
-		match pathfind_direction {
-			Some(v) => return Command {
-				action: Action::MOVE,
-				direction: v,
-			},
+		//let pathfind_direction = pathfind(info, &gamestate.map, &Coords { row: 9, col: opponent_col });
+        let goal = Pos(9, opponent_col as i32);
+		let path= astar(&Pos(info.row as i32, info.col as i32), |p| p.neighbours(&gamestate.map), |p| p.distance(&goal), |p| *p == goal);
+		//println!("\x1b[96mdir: {:?}\x1b[0m", pathfind_direction);
+		match path {
+			Some(v) => {
+                let pos = v.0.get(1).unwrap();
+                let next = Coords { row: pos.0 as usize, col: pos.1 as usize };
+                let current = Coords { row: info.row as usize, col: info.col as usize };
+                return Command {
+				    action: Action::MOVE,
+				    direction: coords_to_dir(current, next),
+                }
+            },
 			None => (),
 		}
 	}

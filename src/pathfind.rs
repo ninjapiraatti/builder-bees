@@ -47,7 +47,7 @@ pub fn pathfind(info: &AgentInfo, map: &Map, destination: &Coords) -> Option<Dir
 			println!("\x1b[96m\nACTUALLY FOUND A PATH!\n\x1b[0m");
 			//println!("\x1b[96mCame from: {:?} \x1b[0m", came_from.len());
 			//println!("\x1b[96mDebug number: {:?} \x1b[0m", debug_count);
-			//println!("\x1b[96mCame from: {:?} \x1b[0m", came_from);
+			println!("\x1b[96mCame from: {:?} \x1b[0m", came_from);
 			/*
 			let mut path = Vec::new();
 			let mut temp = current;

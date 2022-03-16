@@ -86,19 +86,19 @@ impl Map {
 
 
 pub struct GameState {
-    pub map: Map,
-    pub bees: Vec<Bee>,
-    pub strategy: i32,
+	pub map: Map,
+	pub bees: Vec<Bee>,
+	pub strategy: i32,
 }
 
 impl GameState {
-    pub fn new() -> Self {
-        Self {
-            map: Map::new(),
-            bees: vec![Bee::new(0), Bee::new(1), Bee::new(2), Bee::new(3), Bee::new(4)],
-            strategy: STRATEGY_BUILD_WALLS,
-        }
-    }
+	pub fn new() -> Self {
+		Self {
+			map: Map::new(),
+			bees: vec![Bee::new(0), Bee::new(1), Bee::new(2), Bee::new(3), Bee::new(4)],
+			strategy: STRATEGY_BUILD_WALLS,
+		}
+	}
 
 	pub fn update(&mut self, agent_info: &AgentInfo) {
 		for row in 0..VIEW_SIZE {
@@ -161,6 +161,72 @@ impl Coords {
 			Direction::NW => Some(Coords { row: self.row - 1, col: self.col - 1 }),
 		}
 	}
+
+    /*
+    // Returns vec of empty neighbour coords
+    fn neighbours(&self, map: &Map) -> Vec<(Coords, usize)> {
+        let neighbours: Vec<(Coords, usize)> = Vec::new();
+		for direction in Direction::into_enum_iter() {
+			let adjacent = self.adjacent_coord(&direction);
+			match adjacent {
+				Some(v) => {
+					let cell = map.cells.get(v.row, v.col);
+					match cell {
+						Some(c) => {
+							if c.celltype == CellType::EMPTY {
+                                neighbours.push((v, 1));
+							}
+						}
+						None => { continue; },
+					}					
+				}
+				None => { continue; },
+			}
+		}
+        println!("{:?}", neighbours);
+        neighbours
+      }
+
+	fn distance(&self, other: &Coords) -> usize {
+		((self.0 - other.0).abs() + (self.1 - other.1).abs()) as usize
+	}
+    */
+}
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct Pos(pub i32, pub i32);
+
+impl Pos {
+
+    // Returns vec of empty neighbour coords
+    pub fn neighbours(&self, map: &Map) -> Vec<(Pos, usize)> {
+        let mut neighbours: Vec<(Pos, usize)> = Vec::new();
+        let coord: &Coords = &Coords { row: self.0 as usize, col: self.1 as usize };
+		for direction in Direction::into_enum_iter() {
+			let adjacent = coord.adjacent_coord(&direction);
+			match adjacent {
+				Some(v) => {
+					let cell = map.cells.get(v.row, v.col);
+					match cell {
+						Some(c) => {
+							if c.celltype == CellType::EMPTY {
+                                let pos = Pos(v.row as i32, v.col as i32);
+                                neighbours.push((pos, 1));
+							}
+						}
+						None => { continue; },
+					}					
+				}
+				None => { continue; },
+			}
+		}
+        println!("{:?}", neighbours);
+        neighbours
+      }
+
+	pub fn distance(&self, other: &Pos) -> usize {
+		((self.0 - other.0).abs() + (self.1 - other.1).abs()) as usize
+	}
 }
 
 #[derive(Debug, IntoEnumIterator)]
@@ -217,32 +283,32 @@ pub enum Action {
 
 #[derive(Clone, Debug)]
 pub struct Cell {
-    pub celltype: CellType,
+	pub celltype: CellType,
 	pub heat: f32,
-    pub is_destination: bool,
+	pub is_destination: bool,
 	pub is_target: bool,
 }
 
 impl Cell {
-    pub fn new() -> Self {
-        Self {
-            celltype: CellType::EMPTY,
+	pub fn new() -> Self {
+		Self {
+			celltype: CellType::EMPTY,
 			heat: 0.0, //Placeholder
-            is_destination: false,
+			is_destination: false,
 			is_target: false,
-        }
-    }
+		}
+	}
 }
 
 impl From<CellType> for Cell {
-    fn from(v: CellType) -> Self {
-        Cell {
-            celltype: v,
+	fn from(v: CellType) -> Self {
+		Cell {
+			celltype: v,
 			heat: 0.0, //Placeholder
-            is_destination: false,
+			is_destination: false,
 			is_target: false,
-        }
-    }
+		}
+	}
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
