@@ -34,9 +34,9 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	let targets = gamestate.get_targets();
 	let mut bee = gamestate.bees.get_mut(info.bee as usize).unwrap();
 	bee.set_position(info.row as usize, info.col as usize);
-	bee.check_target(&targets); // Jostain syystä enemmän seinää rakentuu kun ei käytä tätä funktiota.
-	println!("\x1b[96m\nThere are {:?} targets: {:?}\x1b[0m", targets.len(), targets);
-	println!("\x1b[96mBee {:?} target: {:?}\x1b[0m", bee.bee_id, bee.target);
+	bee.check_target(&targets);
+	//println!("\x1b[96m\nThere are {:?} targets: {:?}\x1b[0m", targets.len(), targets);
+	//println!("\x1b[96mBee {:?} target: {:?}\x1b[0m", bee.bee_id, bee.target);
 
 
 	//TODO: Function that checks if strategy has to be changed.
@@ -45,7 +45,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	// and forage the flower to the hive if possible.
 	//let test_coords = Coords { row: 5, col: 5 };
 	if bee_cell.has_flower() {
-		println!("\x1b[96mBee {:?} is next to a flower. \x1b[0m", bee.bee_id);
+		println!("\x1b[93mBee {:?} has a flower. \x1b[0m", bee.bee_id);
 		let hive_direction = find_neighbour(info, &hive_cell(info.player));
 		match hive_direction {
 			Some(v) => return Command {
@@ -70,7 +70,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 
 				// If bee is next to where it should build a wall, build the wall and reset target.
 		if bee.at_target() {
-			println!("\x1b[96mBee {:?} is at target. \x1b[0m", bee.bee_id);
+			//println!("\x1b[96mBee {:?} is at target. \x1b[0m", bee.bee_id);
 			let command = Command {
 				action: Action::BUILD,
 				direction: get_direction(bee.target.as_ref().unwrap(), &bee.position).unwrap(),
@@ -79,27 +79,36 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 			return command;
 		}
 		if bee.target.as_ref().is_none() {
-			println!("\x1b[96mBee {:?} has no target. \x1b[0m", bee.bee_id);
-				let target = find_target(info, heatmap, &gamestate.map.cells, &targets);
-				if target.is_some() {
-					bee.set_target(target);
-					println!("\x1b[96mBee {:?} now has target: {:?}. \x1b[0m", bee.bee_id, target);
-				} 
+			//println!("\x1b[96mBee {:?} has no target. \x1b[0m", bee.bee_id);
+			let target = find_target(&bee, heatmap, &gamestate.map.cells, &targets);
+			if target.is_some() {
+				bee.set_target(target);
+				//println!("\x1b[96mBee {:?} now has target: {:?}. \x1b[0m", bee.bee_id, target);
+			}
 		}
 		if bee.role.as_ref().unwrap().eq(&Role::Build) {
-			println!("\x1b[96mBee {:?} is a builder. \x1b[0m", bee.bee_id);
+			//println!("\x1b[96mBee {:?} is a builder. \x1b[0m", bee.bee_id);
 			let opponent_col = if info.player == 1 { 2 } else { NUM_COLS - 3 };
-				let opponent_hive = Coords { row: 9, col: opponent_col };
-				let command: Option<Command> = pathfind(info, &gamestate.map, bee.target.as_ref().unwrap_or(&opponent_hive));
-				match command {
-			Some(v) => return v,
-			None => (),
-				}
+			let opponent_hive = Coords { row: 9, col: opponent_col };
+			let command: Option<Command> = pathfind(info, &gamestate.map, bee.target.as_ref().unwrap_or(&opponent_hive));
+			match command {
+				Some(v) => return v,
+				None => (),
+			}
+		}
+		if bee.role.as_ref().unwrap().eq(&Role::Collect) {
+			println!("\x1b[96mBee {:?} is a collector. \x1b[0m", bee.bee_id);
+			let opponent_hive = Coords { row: 9, col: 9 };
+			let command: Option<Command> = pathfind(info, &gamestate.map, bee.target.as_ref().unwrap_or(&opponent_hive));
+			match command {
+				Some(v) => return v,
+				None => (),
+			}
 		}
 	}
 	// Otherwise move in a random direction.
 	let random_direction: Direction = rand::random();
-	println!("\x1b[96mBee {:?} is moving at random. \x1b[0m", bee.bee_id);
+	//println!("\x1b[96mBee {:?} is moving at random. \x1b[0m", bee.bee_id);
 	Command {
 		action: Action::MOVE,
 		direction: random_direction,

@@ -54,21 +54,21 @@ impl Pos {
 }
 
 pub fn pathfind(info: &AgentInfo, map: &Map, dest_coord: &Coords) -> Option<Command> {
-    let destination = Pos(dest_coord.row as i32, dest_coord.col as i32);
+  let destination = Pos(dest_coord.row as i32, dest_coord.col as i32);
 	let path = astar(&Pos(info.row as i32, info.col as i32), |p| p.neighbours(map), |p| p.distance(&destination), |p| *p == destination);
 	match path {
 		Some(v) => {
-            if let Some(pos) = v.0.get(1) {
-                let next = Coords { row: pos.0 as usize, col: pos.1 as usize };
-                let current = Coords { row: info.row as usize, col: info.col as usize };
-                return Some(Command {
-			        action: Action::MOVE,
-			        direction: coords_to_dir(current, next),
-                    })
-            } else {
-                return None
-            }
-        },
+			if let Some(pos) = v.0.get(1) {
+				let next = Coords { row: pos.0 as usize, col: pos.1 as usize };
+				let current = Coords { row: info.row as usize, col: info.col as usize };
+				return Some(Command {
+					action: Action::MOVE,
+					direction: coords_to_dir(current, next),
+				})
+			} else {
+				return None
+			}
+		},
 		None => None,
 	}
 }

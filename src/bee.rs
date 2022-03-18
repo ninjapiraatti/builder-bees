@@ -12,14 +12,14 @@ pub struct Bee {
 }
 
 impl Bee {
-	pub fn new(id: i32) -> Self {
+	pub fn new(id: i32, role: Role) -> Self {
 		Bee {
 			bee_id: id,
 			has_flower: false,
 			position: Coords { row: 0, col: 0 },
 			destination: None,
 			target: None,
-			role: Some(Role::Build),
+			role: Some(role),
 			path: None,
 		}
 	}

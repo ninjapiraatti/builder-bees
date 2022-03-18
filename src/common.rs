@@ -7,7 +7,7 @@ use std::fmt::{ Debug, Formatter };
 use std::fmt;
 use rand::distributions::{ Distribution, Standard };
 use rand::Rng;
-use crate::bee::Bee;
+use crate::bee::{ Bee, Role };
 
 pub const NUM_ROWS: usize = 25;
 pub const NUM_COLS: usize = 30;
@@ -94,7 +94,7 @@ impl GameState {
 	pub fn new() -> Self {
 		Self {
 			map: Map::new(),
-			bees: vec![Bee::new(0), Bee::new(1), Bee::new(2), Bee::new(3), Bee::new(4)],
+			bees: vec![Bee::new(0, Role::Build), Bee::new(1, Role::Build), Bee::new(2, Role::Build), Bee::new(3, Role::Build), Bee::new(4, Role::Collect)],
 			strategy: STRATEGY_BUILD_WALLS,
 		}
 	}
