@@ -106,15 +106,21 @@ pub fn find_target(info: &AgentInfo, heatmap: &Array2D<f32>, map: &Array2D<Cell>
     let mut min_row = 100;
     let mut min_col = 100;
     for row in 0..NUM_ROWS {
-        for col in 0..NUM_COLS {
+        'cols: for col in 0..NUM_COLS {
             let cell = map.get(row, col).unwrap();
-            if cell.celltype.eq(&CellType::WALL) || cell.celltype.is_hive() { continue };
+            if cell.celltype.eq(&CellType::WALL) || cell.celltype.is_hive() { continue; };
             let current = Coords { row: row, col: col };
             for target in targets {
-                if target.eq(&current) { continue };
+                if target.row == current.row && target.col == current.col {
+                //if target.eq(&current) { 
+                    println!("\x1b[96mCurrent coords: {:?} | Potential target: {:?} \x1b[0m", current, target);
+                    println!("\x1b[96mThey were the same. \x1b[0m");
+                    continue 'cols;
+                };
             }
             let heat = heatmap.get(row, col).unwrap_or(&100.0);
             if heat < &min_heat {
+                println!("\x1b[93mFound better. \x1b[0m");
                 min_heat = *heat;
                 min_row = row;
                 min_col = col;
@@ -122,6 +128,7 @@ pub fn find_target(info: &AgentInfo, heatmap: &Array2D<f32>, map: &Array2D<Cell>
         }
     }
     if min_row == 100 || min_col == 100 { return None };
+    println!("\x1b[93mReturning: {:?} \x1b[0m", Coords { row: min_row, col: min_col });
     Some(Coords { row: min_row, col: min_col })
 }
 
