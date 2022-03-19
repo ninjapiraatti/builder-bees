@@ -75,6 +75,18 @@ pub fn find_neighbour(info: &AgentInfo, cell_type: &CellType) -> Option<Directio
 	None
 }
 
+pub fn find_available_adjacent(target: Coords, map: &Array2D<Cell>) -> Option<Coords> {
+	for direction in Direction::into_enum_iter() {
+		let adjacent = target.adjacent_coord(&direction);
+		match adjacent {
+			Some(v) if map.get(v.row, v.col).unwrap().celltype.eq(&CellType::EMPTY) => return Some(v),
+			Some(_) => continue,
+			None => continue,
+		}
+	}
+	None
+}
+
 pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> {
 	let coords = Coords {
 		row: info.row as usize,
@@ -102,9 +114,15 @@ pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> 
 }
 
 /// Finds wall building target for builder bee.
-pub fn find_target(bee: &Bee, heatmap: &Array2D<f32>, map: &Array2D<Cell>, targets: &Vec<Coords>) -> Option<Coords> {
+pub fn find_target(info: &AgentInfo, bee: &Bee, heatmap: &Array2D<f32>, map: &Array2D<Cell>, targets: &Vec<Coords>) -> Option<Coords> {
 	if bee.role.as_ref().unwrap().eq(&Role::Collect) {
-		// Find the closest flower
+		let flower_coords = find_flower_in_map(map);
+		if flower_coords.is_some() {
+			let flower_target = find_available_adjacent(flower_coords.unwrap(), map);
+			println!("\x1b[96mfind_target(): Returning {:?}\x1b[0m", flower_target);
+			return flower_target;
+		}
+		return None
 	}
 	let mut min_heat = 100.0;
 	let mut min_row = 100;
@@ -142,6 +160,23 @@ pub fn find_flower_in_view(info: &AgentInfo) -> Option<Coords> {
 		for col in 0..7 {
 			let cell = info.cells.get(row, col).unwrap();
 			if CellType::FLOWER.eq(cell) {
+				let coords = Coords {
+					row: row,
+					col: col,
+				};
+				return Some(coords)
+			}
+		}
+	}
+	None
+}
+
+/// If a flower is in view, return its coordinates.
+pub fn find_flower_in_map(map: &Array2D<Cell>) -> Option<Coords> {
+	for row in 0..NUM_ROWS {
+		for col in 0..NUM_COLS {
+			let cell = map.get(row, col).unwrap();
+			if CellType::FLOWER.eq(&cell.celltype) {
 				let coords = Coords {
 					row: row,
 					col: col,

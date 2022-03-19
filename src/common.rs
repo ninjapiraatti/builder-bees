@@ -231,7 +231,7 @@ impl Coords {
 	}
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum Action {
 	MOVE,
 	FORAGE,

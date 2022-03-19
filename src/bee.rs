@@ -1,4 +1,4 @@
-use crate::common::{ AgentInfo, Coords };
+use crate::common::{ AgentInfo, Coords, Action };
 
 #[derive(Debug)]
 pub struct Bee {
@@ -9,6 +9,7 @@ pub struct Bee {
 	pub target: Option<Coords>,
 	pub role: Option<Role>,
 	pub path: Option<Vec<Coords>>,
+	pub action: Action,
 }
 
 impl Bee {
@@ -21,6 +22,7 @@ impl Bee {
 			target: None,
 			role: Some(role),
 			path: None,
+			action: Bee::get_action_from_role(role.clone()),
 		}
 	}
 
@@ -33,6 +35,7 @@ impl Bee {
 			target: None,
 			role: None,
 			path: None,
+			action: Action::MOVE,
 		}
 	}
 
@@ -51,7 +54,7 @@ impl Bee {
 		self.target = target;
 	}
 
-	pub fn at_target(&mut self) -> bool {
+	pub fn at_targets_adjacent(&mut self) -> bool {
 		if self.target.is_none() { return false };
 		if self.target.unwrap().is_adjacent(&self.position) {
 			true
@@ -73,9 +76,18 @@ impl Bee {
 			}
 		}
 	}
+
+	pub fn get_action_from_role(role: Role) -> Action {
+		match role {
+			Role::Collect => return Action::FORAGE,
+			Role::Build => return Action::BUILD,
+			Role::Sabotage => return Action::GUARD,
+			_ => return Action::MOVE,
+		}
+	}
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Role {
 	Collect,
 	Build,

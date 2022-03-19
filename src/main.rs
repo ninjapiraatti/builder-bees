@@ -44,68 +44,93 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	// If the current bee holds a flower, check if the hive is adjacent
 	// and forage the flower to the hive if possible.
 	//let test_coords = Coords { row: 5, col: 5 };
-	if bee_cell.has_flower() {
-		println!("\x1b[93mBee {:?} has a flower. \x1b[0m", bee.bee_id);
+	if bee.bee_id == 4 {
+		println!("\x1b[96m\nBee {:?}\x1b[0m", bee.bee_id);
+	}
+	if bee.has_flower == true {
+		let hive = Some(hive_coords(info.player)).unwrap();
+		bee.target = find_available_adjacent(hive, &gamestate.map.cells);
+		println!("\x1b[93mBee {:?} has a flower. Target: {:?}\x1b[0m", bee.bee_id, bee.target);
 		let hive_direction = find_neighbour(info, &hive_cell(info.player));
 		match hive_direction {
-			Some(v) => return Command {
+			Some(v) => {
+				bee.has_flower = false;
+				return Command {
 				action: Action::FORAGE,
 				direction: v,
+				};
 			},
 			None => (),
 		}
-	// If the current bee doesn't hold a flower, find the direction in which
-		// a wall should be built, and move toward it.
 	} else {
-		/*
-		let wall_direction = find_heat(info, &heatmap);
-		//let flower_direction = find_neighbour(info, &CellType::FLOWER);
-		match wall_direction {
-			Some(v) => return Command {
-				action: Action::MOVE,
-				direction: v,
-			},
-			None => (),
-		}*/
-
-				// If bee is next to where it should build a wall, build the wall and reset target.
-		if bee.at_target() {
-			//println!("\x1b[96mBee {:?} is at target. \x1b[0m", bee.bee_id);
-			let command = Command {
-				action: Action::BUILD,
-				direction: get_direction(bee.target.as_ref().unwrap(), &bee.position).unwrap(),
-			};
-			bee.set_target(None);
-			return command;
-		}
-		if bee.target.as_ref().is_none() {
-			//println!("\x1b[96mBee {:?} has no target. \x1b[0m", bee.bee_id);
-			let target = find_target(&bee, heatmap, &gamestate.map.cells, &targets);
-			if target.is_some() {
-				bee.set_target(target);
-				//println!("\x1b[96mBee {:?} now has target: {:?}. \x1b[0m", bee.bee_id, target);
-			}
-		}
-		if bee.role.as_ref().unwrap().eq(&Role::Build) {
-			//println!("\x1b[96mBee {:?} is a builder. \x1b[0m", bee.bee_id);
-			let opponent_col = if info.player == 1 { 2 } else { NUM_COLS - 3 };
-			let opponent_hive = Coords { row: 9, col: opponent_col };
-			let command: Option<Command> = pathfind(info, &gamestate.map, bee.target.as_ref().unwrap_or(&opponent_hive));
-			match command {
-				Some(v) => return v,
-				None => (),
-			}
-		}
 		if bee.role.as_ref().unwrap().eq(&Role::Collect) {
-			println!("\x1b[96mBee {:?} is a collector. \x1b[0m", bee.bee_id);
-			let opponent_hive = Coords { row: 9, col: 9 };
-			let command: Option<Command> = pathfind(info, &gamestate.map, bee.target.as_ref().unwrap_or(&opponent_hive));
-			match command {
-				Some(v) => return v,
-				None => (),
+			let flower_direction = find_neighbour(info, &CellType::FLOWER);
+			if flower_direction.is_some() {
+				let command = Command {
+					action: bee.action,
+					direction: flower_direction.unwrap(),
+				};
+				bee.has_flower = true;
+				return command;
 			}
 		}
 	}
+
+	// Is the bee adjacent to its target? If so, do the action.
+	if bee.at_targets_adjacent() {
+		if bee.bee_id == 4 {
+			//println!("\x1b[96mthink 66: Bee {:?} is at target. target: {:?}\x1b[0m", bee.bee_id, bee.target);
+			//println!("\x1b[96mthink 67: Bee {:?} is at {:?}\x1b[0m", bee.bee_id, bee.position);
+		}
+		let command = Command {
+			action: bee.action,
+			direction: get_direction(bee.target.as_ref().unwrap(), &bee.position).unwrap(),
+		};
+		bee.set_target(None);
+		if bee.bee_id == 4 {
+			//println!("\x1b[96mthink 75: Returning command {:?}\x1b[0m", command);
+		}
+		return command;
+	}
+
+	// If the bee has no target, get one
+	if bee.target.as_ref().is_none() {
+		//println!("\x1b[96mBee {:?} has no target. \x1b[0m", bee.bee_id);
+		let target = find_target(info, &bee, heatmap, &gamestate.map.cells, &targets);
+		if target.is_some() {
+			bee.set_target(target);
+			if bee.bee_id == 4 {
+				//println!("\x1b[96mthink 87: Bee {:?} now has target: {:?}. \x1b[0m", bee.bee_id, target);
+			}
+		}
+	}
+
+	// If it's a builder bee, move towards target
+	if bee.role.as_ref().unwrap().eq(&Role::Build) {
+		//println!("\x1b[96mBee {:?} is a builder. \x1b[0m", bee.bee_id);
+		let opponent_col = if info.player == 1 { 2 } else { NUM_COLS - 3 };
+		let opponent_hive = Coords { row: 9, col: opponent_col };
+		let command: Option<Command> = pathfind(info, &gamestate.map, bee.target.as_ref().unwrap_or(&opponent_hive));
+		match command {
+			Some(v) => return v,
+			None => (),
+		}
+	}
+
+	// If it's a forager bee, move towards target
+	if bee.role.as_ref().unwrap().eq(&Role::Collect) {
+		//println!("\x1b[96mBee {:?} is a collector. \x1b[0m", bee.bee_id);
+		let home_hive = hive_coords(info.player);
+		let command: Option<Command> = pathfind(info, &gamestate.map, bee.target.as_ref().unwrap_or(&home_hive));
+		if bee.bee_id == 4 {
+			//println!("\x1b[96mBee target to pathfind: {:?} | Returns command: {:?}. \x1b[0m", bee.target, command);
+		}
+		match command {
+			Some(v) => return v,
+			None => (),
+		}
+	}
+
 	// Otherwise move in a random direction.
 	let random_direction: Direction = rand::random();
 	//println!("\x1b[96mBee {:?} is moving at random. \x1b[0m", bee.bee_id);
