@@ -47,6 +47,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	if bee.bee_id == 4 {
 		println!("\x1b[96m\nBee {:?}\x1b[0m", bee.bee_id);
 	}
+	bee.has_flower = bee_cell.has_flower(); 
 	if bee.has_flower == true {
 		let hive = Some(hive_coords(info.player)).unwrap();
 		bee.target = find_available_adjacent(hive, &gamestate.map.cells);
@@ -54,7 +55,6 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 		let hive_direction = find_neighbour(info, &hive_cell(info.player));
 		match hive_direction {
 			Some(v) => {
-				bee.has_flower = false;
 				return Command {
 				action: Action::FORAGE,
 				direction: v,
