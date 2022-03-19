@@ -51,7 +51,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	if bee.has_flower == true {
 		let hive = Some(hive_coords(info.player)).unwrap();
 		bee.target = find_available_adjacent(hive, &gamestate.map.cells);
-		println!("\x1b[93mBee {:?} has a flower. Target: {:?}\x1b[0m", bee.bee_id, bee.target);
+		println!("\x1b[93mBee {:?} has a flower. Target: {:?} Bee coords: {:?} Hive coords: {:?}\x1b[0m", bee.bee_id, bee.target, bee.position, hive);
 		let hive_direction = find_neighbour(info, &hive_cell(info.player));
 		match hive_direction {
 			Some(v) => {
