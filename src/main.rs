@@ -51,10 +51,10 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	if bee.has_flower == true {
 		let hive = Some(hive_coords(info.player)).unwrap();
 		bee.target = find_available_adjacent(hive, &gamestate.map.cells);
-		println!("\x1b[93mBee {:?} has a flower. Target: {:?} Bee coords: {:?} Hive coords: {:?}\x1b[0m", bee.bee_id, bee.target, bee.position, hive);
 		let hive_direction = find_neighbour(info, &hive_cell(info.player));
 		match hive_direction {
 			Some(v) => {
+				println!("\x1b[93mBee {:?} has a flower. Target: {:?} Bee coords: {:?} Hive coords: {:?}\x1b[0m", bee.bee_id, bee.target, bee.position, hive);
 				return Command {
 				action: Action::FORAGE,
 				direction: v,
@@ -77,7 +77,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	}
 
 	// Is the bee adjacent to its target? If so, do the action.
-	if bee.at_targets_adjacent() {
+	if bee.at_targets_adjacent() && bee.bee_id != 4 {
 		if bee.bee_id == 4 {
 			//println!("\x1b[96mthink 66: Bee {:?} is at target. target: {:?}\x1b[0m", bee.bee_id, bee.target);
 			//println!("\x1b[96mthink 67: Bee {:?} is at {:?}\x1b[0m", bee.bee_id, bee.position);
