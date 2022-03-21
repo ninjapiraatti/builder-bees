@@ -83,7 +83,6 @@ impl Bee {
 			Role::Collect => return Action::FORAGE,
 			Role::Build => return Action::BUILD,
 			Role::Sabotage => return Action::GUARD,
-			_ => return Action::MOVE,
 		}
 	}
 }

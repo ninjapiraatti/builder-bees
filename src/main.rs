@@ -8,7 +8,6 @@ mod utils;
 mod pathfind;
 
 use std::env;
-use std::process;
 use array2d::Array2D;
 use crate::common::{ 
 		Action,
@@ -19,13 +18,10 @@ use crate::common::{
 		Direction,
 		GameState,
 		NUM_COLS,
-		NUM_ROWS,
 		VIEW_DISTANCE
 };
 use crate::bee::*;
 use crate::think::*;
-use crate::simple_agent::*;
-use crate::utils::{ coords_to_dir, print_heatmap };
 use crate::pathfind::*;
 
 /// The main think function of our agent. 

@@ -6,8 +6,6 @@ use crate::common::{
     Coords,
     Direction,
     GameState,
-    NUM_COLS,
-    NUM_ROWS,
     VIEW_DISTANCE
 };
 use crate::think::{
@@ -18,11 +16,11 @@ use crate::think::{
     hive_coords,
     hive_cell
 };
-use crate::bee::Bee;
 use array2d::Array2D;
 
 /// The function that decides on a command for a given turn based on agent info.
 /// Current logic is similar to the logic in example agent.
+#[allow(dead_code, unused_variables)]
 pub fn think_simple_agent(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState) -> Command {
     let bee_cell = info.cell_type(&Coords { row: VIEW_DISTANCE, col: VIEW_DISTANCE });
     let current_bee = &mut gamestate.bees[info.bee as usize];

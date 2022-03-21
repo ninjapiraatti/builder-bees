@@ -1,7 +1,16 @@
+
 use array2d::Array2D;
+use crate::common::{
+    Map,
+    CellType,
+    Coords,
+    Direction,
+    CellType::*,
+    NUM_ROWS,
+    NUM_COLS
+};
 
-use crate::common::{ Map, Cell, CellType, Coords, Direction, CellType::*, NUM_ROWS, NUM_COLS };
-
+#[allow(dead_code)]
 pub fn print_map(map: &Map) {
 	for row in 0..NUM_ROWS {
 		print!("\n");
@@ -35,14 +44,15 @@ pub fn generate_heatmap(width: usize, height: usize, originx: usize, originy: us
 			for col in 0..width {
 				let x = col as i32 - originx as i32;
 				let y = row as i32 - originy as i32;
-				heatmap.set(row, col, ((x*x + y*y) as f32).sqrt());
+				heatmap.set(row, col, ((x*x + y*y) as f32).sqrt()).expect("Could not set heatmap value");
 			}
 		}
 	}
-    heatmap.set(originx, originy, 100.0);
+    heatmap.set(originx, originy, 100.0).expect("Could not set heatmap value");
 	heatmap
 }
 
+#[allow(dead_code)]
 pub fn print_heatmap(heatmap: &Array2D<f32>) {
 	for row in 0..heatmap.num_rows() {
 		print!("\n");
@@ -55,7 +65,6 @@ pub fn print_heatmap(heatmap: &Array2D<f32>) {
 pub fn coords_to_dir(current: Coords, target: Coords) -> Direction {
 	let x = target.col as i32 - current.col as i32;
 	let y = target.row as i32 - current.row as i32;
-	//println!("\x1b[96mX: {:?} | Y: {:?}\n\x1b[0m", x, y);
 	if x == 0 {
 		if y > 0 {
 			return Direction::S;

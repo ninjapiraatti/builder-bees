@@ -32,11 +32,11 @@ pub fn hive_coords(player: i32) -> Coords {
 		}
 }
 
-pub fn hive_adjacent_coords(player: i32) -> Coords {
+pub fn defender_coords(player: i32) -> Coords {
 		if player == 0 {
-				Coords { row: 12, col: 2 }
+				Coords { row: 11, col: 2 }
 		} else {
-				Coords { row: 12, col: NUM_COLS - 3 }
+				Coords { row: 11, col: NUM_COLS - 3 }
 		}
 }
 
@@ -116,7 +116,6 @@ pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> 
 					min_heat = *heat;
 					max_direction = direction;
 				}
-				//println!("{:?} | {:?}", max_direction, heat);
 			},
 			None => continue,
 		}
