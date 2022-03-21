@@ -14,6 +14,7 @@ use std::collections::{
 	BTreeMap,
 };
 use enum_iterator::IntoEnumIterator;
+use crate::think::hive_cell;
 use crate::utils::{coords_to_dir};
 use pathfinding::astar;
 
@@ -64,6 +65,9 @@ impl Pos {
 							} else if c.celltype == CellType::WALL {
                                 let pos = Pos(v.row as i32, v.col as i32);
                                 neighbours.push((pos, 2));
+                            } else if c.celltype.is_hive() {
+                                let pos = Pos(v.row as i32, v.col as i32);
+                                neighbours.push((pos, 1));
                             }
 						}
 						None => { continue; },
@@ -84,7 +88,7 @@ pub fn pathfind(info: &AgentInfo, map: &Map, dest_coord: &Coords) -> Option<Comm
 		//println!("\x1b[96mpathfind(): current bee coords: {:?} | {:?}\x1b[0m", info.row, info.col);
 		//println!("\x1b[96mpathfind(): dest coords: {:?} \x1b[0m", dest_coord);
 	}
-  let destination = Pos(dest_coord.row as i32, dest_coord.col as i32);
+    let destination = Pos(dest_coord.row as i32, dest_coord.col as i32);
 	let path = astar(&Pos(info.row as i32, info.col as i32), |p| p.neighbours(map), |p| p.distance(&destination), |p| *p == destination);
 	match path {
 		Some(v) => {
@@ -120,6 +124,8 @@ pub fn pathfind_collect(info: &AgentInfo, map: &Map, dest_coord: &Coords) -> Opt
 				    	action: Action::GUARD,
 				    	direction: coords_to_dir(current, next),
 				    })
+                } else if next_cell.celltype.eq(&hive_cell(info.player)) {
+                    return None
                 } else {
 				    return Some(Command {
 				    	action: Action::MOVE,

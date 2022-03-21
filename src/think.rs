@@ -28,7 +28,15 @@ pub fn hive_coords(player: i32) -> Coords {
 		if player == 0 {
 				Coords { row: 12, col: 1 }
 		} else {
-				Coords { row: 12, col: NUM_COLS - 1 }
+				Coords { row: 12, col: NUM_COLS - 2 }
+		}
+}
+
+pub fn hive_adjacent_coords(player: i32) -> Coords {
+		if player == 0 {
+				Coords { row: 12, col: 2 }
+		} else {
+				Coords { row: 12, col: NUM_COLS - 3 }
 		}
 }
 
