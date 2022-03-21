@@ -40,6 +40,14 @@ pub fn defender_coords(player: i32) -> Coords {
 		}
 }
 
+pub fn dropoff_coords(player: i32) -> Coords {
+		if player == 0 {
+				Coords { row: 10, col: 3 }
+		} else {
+				Coords { row: 10, col: NUM_COLS - 4 }
+		}
+}
+
 /// Checks if it is possible for a bee to move in a certain direction.
 pub fn can_move_in_direction(info: &AgentInfo, direction: &Direction) -> bool {
 		let position = Coords { row: VIEW_DISTANCE, col: VIEW_DISTANCE };
