@@ -9,6 +9,7 @@ mod pathfind;
 
 use std::env;
 use array2d::Array2D;
+use utils::coords_to_dir;
 use crate::common::{ 
         Action,
         AgentInfo,
@@ -56,6 +57,17 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
         bee.target = Some(defender_coords(info.player));
         if bee.position == bee.target.unwrap() {
             let hive_direction = find_neighbour(info, &hive_cell(info.player));
+            let flower_direction = find_neighbour(info, &CellType::FLOWER);
+			match flower_direction {
+				Some(v) => {
+					println!("\x1b[93mTurn {:?}. Bee {:?} has a flower nearby. Direction: {:?}\x1b[0m", info.turn, bee.bee_id, v);
+					return Command {
+						action: Action::FORAGE,
+						direction: v,
+					};
+				},
+				None => (),
+			}
             if bee.has_flower == true {
                 match hive_direction {
                     Some(v) => {
@@ -68,18 +80,19 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
                 }
             } else {
                 return Command {
-                action: Action::GUARD,
-                direction: Direction::NW,
+                    action: Action::GUARD,
+                    direction: defend_direction(info.player),
                 };
             }
         }
     }
   
-    if bee.has_flower == true {
+    if bee.has_flower == true {		
         //println!("\x1b[93mBee {:?} has a flower.\x1b[0m", bee.bee_id);
-        let hive = Some(hive_coords(info.player)).unwrap();
-        bee.target = find_available_adjacent(hive, &gamestate.map.cells);
+        let dropoff = Some(dropoff_coords(info.player)).unwrap();
+        bee.target = find_available_adjacent(dropoff, &gamestate.map.cells);
         //println!("\x1b[93mTarget: {:?}\x1b[0m", bee.target);
+        let dropoff_direction = coords_to_dir(bee.position, dropoff_coords(info.player));
         let hive_direction = find_neighbour(info, &hive_cell(info.player));
         match hive_direction {
             Some(v) => {
@@ -91,6 +104,12 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
             },
             None => (),
         }
+        if bee.at_targets_adjacent() { 
+			return Command {
+				action: Action::FORAGE,
+				direction: dropoff_direction,
+			}
+		}
     } else {
         if bee.role.as_ref().unwrap().eq(&Role::Collect) {
             let flower_direction = find_neighbour(info, &CellType::FLOWER);
@@ -205,8 +224,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
     Command {
         action: Action::MOVE,
         direction: random_direction,
-    }
-}
+    }}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
