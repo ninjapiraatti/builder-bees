@@ -29,8 +29,13 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	let bee_cell = info.cell_type(&Coords { row: VIEW_DISTANCE, col: VIEW_DISTANCE });
 	let targets = gamestate.get_targets();
 	let mut bee = gamestate.bees.get_mut(info.bee as usize).unwrap();
+
+    if info.turn == 1 {
+        gamestate.set_strategy(Strategy::CollectNearby);
+    }
 	bee.set_position(info.row as usize, info.col as usize);
 	bee.check_target(&targets);
+
 	//println!("\x1b[96m\nThere are {:?} targets: {:?}\x1b[0m", targets.len(), targets);
 	//println!("\x1b[96mBee {:?} target: {:?}\x1b[0m", bee.bee_id, bee.target);
 

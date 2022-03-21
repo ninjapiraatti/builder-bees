@@ -54,6 +54,10 @@ impl Bee {
 		self.target = target;
 	}
 
+    pub fn set_role(&mut self, role: Role) {
+        self.role = Some(role);
+    }
+
 	pub fn at_targets_adjacent(&mut self) -> bool {
 		if self.target.is_none() { return false };
 		if self.target.unwrap().is_adjacent(&self.position) {
@@ -80,8 +84,9 @@ impl Bee {
 
 	pub fn get_action_from_role(role: Role) -> Action {
 		match role {
-			Role::Collect => return Action::FORAGE,
 			Role::Build => return Action::BUILD,
+			Role::Collect => return Action::FORAGE,
+            Role::Defender => return Action::FORAGE,
 			Role::Sabotage => return Action::GUARD,
 		}
 	}
@@ -89,7 +94,8 @@ impl Bee {
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Role {
-	Collect,
 	Build,
+	Collect,
+    Defender,
 	Sabotage,
 }

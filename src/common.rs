@@ -24,9 +24,6 @@ pub const MAX_AGENT_INFO_LEN: usize = (VIEW_SIZE * VIEW_SIZE + 30);
 pub const MAX_COMMAND_LEN: usize = 10;
 pub const NET_BUFFER_SIZE: usize = 200;
 
-pub const STRATEGY_BUILD_WALLS: i32 = 0;
-pub const STRATEGY_PICK_FLOWERS: i32 = 1;
-
 pub type ThinkFunction = fn(&AgentInfo, &Array2D<f32>, &mut GameState) -> Command;
 
 pub struct AgentInfo {
@@ -79,10 +76,18 @@ impl Map {
 	}
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Strategy {
+    CollectNearby,
+    Block,
+    DefensiveBlock
+
+}
+
 pub struct GameState {
 	pub map: Map,
 	pub bees: Vec<Bee>,
-	pub strategy: i32,
+	pub strategy: Strategy,
 }
 
 impl GameState {
@@ -90,7 +95,7 @@ impl GameState {
 		Self {
 			map: Map::new(),
 			bees: vec![Bee::new(0, Role::Build), Bee::new(1, Role::Build), Bee::new(2, Role::Build), Bee::new(3, Role::Collect), Bee::new(4, Role::Collect)],
-			strategy: STRATEGY_BUILD_WALLS,
+			strategy: Strategy::CollectNearby,
 		}
 	}
 
