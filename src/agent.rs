@@ -71,7 +71,7 @@ fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
 	let mut heatmap_initialized = false;
 	loop {
 		let info: AgentInfo = get_agent_info(stream).expect("Game over.");
-		let opponent_col = if info.player == 1 { 1 } else { 29 };
+		let opponent_col = if info.player == 1 { 1 } else { 28 };
 		heatmap = generate_heatmap(NUM_COLS, NUM_ROWS, opponent_col, 12, heatmap_initialized);
 		//print_heatmap(&heatmap);
 		heatmap_initialized = true;

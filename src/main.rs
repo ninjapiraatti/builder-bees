@@ -43,10 +43,11 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 
 	// If the current bee holds a flower, check if the hive is adjacent
 	// and forage the flower to the hive if possible.
-	//let test_coords = Coords { row: 5, col: 5 };
+    /*
 	if bee.bee_id == 4 {
-		//println!("\x1b[96m\nBee {:?}\x1b[0m", bee.bee_id);
+		println!("\x1b[96m\nBee {:?}\x1b[0m", bee.bee_id);
 	}
+    */
 	bee.has_flower = bee_cell.has_flower(); 
 	if bee.has_flower == true {
 		let hive = Some(hive_coords(info.player)).unwrap();
@@ -54,7 +55,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 		let hive_direction = find_neighbour(info, &hive_cell(info.player));
 		match hive_direction {
 			Some(v) => {
-				println!("\x1b[93mBee {:?} has a flower. Target: {:?} Bee coords: {:?} Hive coords: {:?}\x1b[0m", bee.bee_id, bee.target, bee.position, hive);
+				//println!("\x1b[93mBee {:?} has a flower. Target: {:?} Bee coords: {:?} Hive coords: {:?}\x1b[0m", bee.bee_id, bee.target, bee.position, hive);
 				return Command {
 				action: Action::FORAGE,
 				direction: v,
@@ -78,18 +79,22 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 
 	// Is the bee adjacent to its target? If so, do the action.
 	if bee.at_targets_adjacent() && bee.bee_id != 4 && bee.bee_id != 3 { 
+        /*
 		if bee.bee_id == 4 || bee.bee_id == 3 {
 			println!("\x1b[96mthink 66: Bee {:?} is at target. target: {:?}\x1b[0m", bee.bee_id, bee.target);
 			println!("\x1b[96mthink 67: Bee {:?} is at {:?}\x1b[0m", bee.bee_id, bee.position);
 		}
+        */
 		let command = Command {
 			action: bee.action,
 			direction: get_direction(bee.target.as_ref().unwrap(), &bee.position).unwrap(),
 		};
 		bee.set_target(None);
+        /*
 		if bee.bee_id == 4 {
-			//println!("\x1b[96mthink 75: Returning command {:?}\x1b[0m", command);
+			println!("\x1b[96mthink 75: Returning command {:?}\x1b[0m", command);
 		}
+        */
 		return command;
 	}
 
@@ -99,9 +104,11 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 		let target = find_target(info, &bee, heatmap, &gamestate.map.cells, &targets);
 		if target.is_some() {
 			bee.set_target(target);
+            /*
 			if bee.bee_id == 4 {
-				//println!("\x1b[96mthink 87: Bee {:?} now has target: {:?}. \x1b[0m", bee.bee_id, target);
+				println!("\x1b[96mthink 87: Bee {:?} now has target: {:?}. \x1b[0m", bee.bee_id, target);
 			}
+            */
 		} else {
 			bee.set_target(None); // Probably redundant
 		}
@@ -125,10 +132,12 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	if bee.role.as_ref().unwrap().eq(&Role::Collect) {
 		//println!("\x1b[96mBee {:?} is a collector. \x1b[0m", bee.bee_id);
 		let home_hive = hive_coords(info.player);
-		let command: Option<Command> = pathfind(info, &gamestate.map, bee.target.as_ref().unwrap_or(&home_hive));
+		let command: Option<Command> = pathfind_collect(info, &gamestate.map, bee.target.as_ref().unwrap_or(&home_hive));
+        /*
 		if bee.bee_id == 4 {
-			//println!("\x1b[96mBee target to pathfind: {:?} | Returns command: {:?}. \x1b[0m", bee.target, command);
+			println!("\x1b[96mBee target to pathfind: {:?} | Returns command: {:?}. \x1b[0m", bee.target, command);
 		}
+        */
 		match command {
 			Some(v) => return v,
 			None => {

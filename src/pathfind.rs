@@ -48,6 +48,32 @@ impl Pos {
         neighbours
       }
 
+    pub fn neighbours_collect(&self, map: &Map) -> Vec<(Pos, usize)> {
+        let mut neighbours: Vec<(Pos, usize)> = Vec::new();
+        let coord: &Coords = &Coords { row: self.0 as usize, col: self.1 as usize };
+		for direction in Direction::into_enum_iter() {
+			let adjacent = coord.adjacent_coord(&direction);
+			match adjacent {
+				Some(v) => {
+					let cell = map.cells.get(v.row, v.col);
+					match cell {
+						Some(c) => {
+							if c.celltype == CellType::EMPTY {
+                                let pos = Pos(v.row as i32, v.col as i32);
+                                neighbours.push((pos, 1));
+							} else if c.celltype == CellType::WALL {
+                                let pos = Pos(v.row as i32, v.col as i32);
+                                neighbours.push((pos, 2));
+                            }
+						}
+						None => { continue; },
+					}					
+				}
+				None => { continue; },
+			}
+		}
+        neighbours
+      }
 	pub fn distance(&self, other: &Pos) -> usize {
 		((self.0 - other.0).abs() + (self.1 - other.1).abs()) as usize
 	}
@@ -72,6 +98,34 @@ pub fn pathfind(info: &AgentInfo, map: &Map, dest_coord: &Coords) -> Option<Comm
 					action: Action::MOVE,
 					direction: coords_to_dir(current, next),
 				})
+			} else {
+				return None
+			}
+		},
+		None => None,
+	}
+}
+
+pub fn pathfind_collect(info: &AgentInfo, map: &Map, dest_coord: &Coords) -> Option<Command> {
+  let destination = Pos(dest_coord.row as i32, dest_coord.col as i32);
+	let path = astar(&Pos(info.row as i32, info.col as i32), |p| p.neighbours_collect(map), |p| p.distance(&destination), |p| *p == destination);
+	match path {
+		Some(v) => {
+			if let Some(pos) = v.0.get(1) {
+				let next = Coords { row: pos.0 as usize, col: pos.1 as usize };
+				let current = Coords { row: info.row as usize, col: info.col as usize };
+                let next_cell = map.cells.get(next.row, next.col).unwrap();
+                if next_cell.celltype.eq(&CellType::WALL) {
+				    return Some(Command {
+				    	action: Action::GUARD,
+				    	direction: coords_to_dir(current, next),
+				    })
+                } else {
+				    return Some(Command {
+				    	action: Action::MOVE,
+				    	direction: coords_to_dir(current, next),
+				    })
+                }
 			} else {
 				return None
 			}
