@@ -32,6 +32,15 @@ pub fn hive_coords(player: i32) -> Coords {
 		}
 }
 
+/// Returns the hive coords of the opponent
+pub fn opponent_hive_coords(player: i32) -> Coords {
+		if player == 1 {
+				Coords { row: 12, col: 1 }
+		} else {
+				Coords { row: 12, col: NUM_COLS - 2 }
+		}
+}
+
 pub fn defender_coords(player: i32) -> Coords {
 		if player == 0 {
 				Coords { row: 11, col: 2 }
@@ -232,4 +241,26 @@ pub fn find_enemy_in_view(info: &AgentInfo) -> Option<Coords> {
 		}
 	}
 	None
+}
+
+pub fn find_build_position(bee: i32, player: i32) -> Option<Coords> {
+    let mut coords = None;
+    if player == 0 {
+        if bee == 0 {
+            coords = Some(Coords { row: 11, col: NUM_COLS - 1 });
+        } else if bee == 1 {
+            coords = Some(Coords { row: 12, col: NUM_COLS - 3 });
+        } else if bee == 2 {
+            coords = Some(Coords { row: 13, col: NUM_COLS - 1 });
+        }
+    } else {
+        if bee == 0 {
+            coords = Some(Coords { row: 11, col: 0 });
+        } else if bee == 1 {
+            coords = Some(Coords { row: 12, col: 2 });
+        } else if bee == 2 {
+            coords = Some(Coords { row: 13, col: 0 });
+        }
+    } 
+    coords
 }
