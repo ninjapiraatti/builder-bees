@@ -9,6 +9,7 @@ mod pathfind;
 
 use std::env;
 use array2d::Array2D;
+use utils::coords_to_dir;
 use crate::common::{ 
 		Action,
 		AgentInfo,
@@ -91,11 +92,11 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 		let hive = Some(dropoff_coords(info.player)).unwrap();
 		bee.target = find_available_adjacent(hive, &gamestate.map.cells);
 		//println!("\x1b[93mTarget: {:?}\x1b[0m", bee.target);
-		//let hive_direction = find_neighbour(info, &hive_cell(info.player));
+		let dropoff_direction = coords_to_dir(bee.position, dropoff_coords(info.player));
 		if bee.at_targets_adjacent() { 
 			return Command {
 				action: Action::FORAGE,
-				direction: Direction::S,
+				direction: dropoff_direction,
 			}
 		}
 	} else {
