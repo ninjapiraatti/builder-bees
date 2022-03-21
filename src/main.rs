@@ -33,9 +33,8 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 
     // Check if enemy is near own hive
     let enemy = find_enemy_in_view(info);
-    match enemy {
-        Some(coords) => gamestate.set_strategy(Strategy::DefensiveBlock),
-        None => (),
+    if enemy.is_some() {
+        gamestate.set_strategy(Strategy::DefensiveBlock);
     }
 
 	let mut bee = gamestate.bees.get_mut(info.bee as usize).unwrap();

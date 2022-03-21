@@ -240,12 +240,12 @@ impl Coords {
     }
 
     pub fn view_coords_to_map_coords(&self, info: &AgentInfo) -> Coords {
-        let row_delta = self.row - VIEW_DISTANCE;
-        let col_delta = self.col - VIEW_DISTANCE;
-        let row = info.row as usize + row_delta;
-        let col = info.col as usize + col_delta;
-        if row > NUM_ROWS - 1 || col > NUM_COLS - 1 { panic!("Too big row or col") };
-        Coords { row: row, col: col }
+        let row_delta: i32 = self.row as i32 - VIEW_DISTANCE as i32;
+        let col_delta: i32 = self.col as i32 - VIEW_DISTANCE as i32;
+        let row: i32 = info.row + row_delta;
+        let col: i32 = info.col + col_delta;
+        if row > NUM_ROWS as i32 - 1 || col > NUM_COLS as i32 - 1 { panic!("Too big row or col") };
+        Coords { row: row as usize, col: col as usize }
     }
 }
 
