@@ -65,6 +65,7 @@ impl Bee {
 
 	pub fn check_target(&mut self, targets: &Vec<Coords>) {
 		if self.target.is_some() {
+            if self.role.as_ref().unwrap().eq(&Role::Collect) { return };
 			let current = self.target.unwrap();
 			let mut i = 0;
 			for target in targets {
@@ -82,7 +83,6 @@ impl Bee {
 			Role::Collect => return Action::FORAGE,
 			Role::Build => return Action::BUILD,
 			Role::Sabotage => return Action::GUARD,
-			_ => return Action::MOVE,
 		}
 	}
 }

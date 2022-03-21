@@ -28,7 +28,6 @@ pub const STRATEGY_BUILD_WALLS: i32 = 0;
 pub const STRATEGY_PICK_FLOWERS: i32 = 1;
 
 pub type ThinkFunction = fn(&AgentInfo, &Array2D<f32>, &mut GameState) -> Command;
-//pub type ThinkFunction = fn(&AgentInfo, &mut GameState) -> Command;
 
 pub struct AgentInfo {
 	pub turn: i32,
@@ -70,16 +69,12 @@ impl Debug for AgentInfo {
 
 pub struct Map {
 	pub cells: Array2D<Cell>,
-	//pub width: i32,
-	//pub height: i32,
 }
 
 impl Map {
 	pub fn new() -> Self {
 		Self {
 			cells: Array2D::filled_with(Cell::new(), NUM_ROWS, NUM_COLS),
-			//width: NUM_COLS,
-			//height: NUM_ROWS,
 		}
 	}
 }
@@ -101,13 +96,10 @@ impl GameState {
 
 	pub fn update(&mut self, agent_info: &AgentInfo) {
 		for row in 0..VIEW_SIZE {
-			//print!("\n");
 			for col in 0..VIEW_SIZE {
-				//print!("{:?}", self.map.cells.get(row,col).unwrap());
 				let y = agent_info.row + row as i32 - VIEW_DISTANCE as i32;
 				let x = agent_info.col + col as i32 - VIEW_DISTANCE as i32;
 				if x >= 0 && x < NUM_COLS as i32 && y >= 0 && y < NUM_ROWS as i32 {
-					//println!("{:?}", self.map.cells.get(y,x).unwrap());
 					self.map.cells.set(y as usize, x as usize, Cell::from(*agent_info.cells.get(row as usize, col as usize)
 							.unwrap_or_else(|| &CellType::EMPTY)));
 				}
@@ -251,7 +243,7 @@ impl Cell {
 	pub fn new() -> Self {
 		Self {
 			celltype: CellType::EMPTY,
-			heat: 0.0, //Placeholder
+			heat: 0.0,
 			is_destination: false,
 			is_target: false,
 		}
@@ -262,7 +254,7 @@ impl From<CellType> for Cell {
 	fn from(v: CellType) -> Self {
 		Cell {
 			celltype: v,
-			heat: 0.0, //Placeholder
+			heat: 0.0,
 			is_destination: false,
 			is_target: false,
 		}

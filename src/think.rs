@@ -26,9 +26,17 @@ pub fn hive_cell(player: i32) -> CellType {
 /// Returns the hive coords given a player number.
 pub fn hive_coords(player: i32) -> Coords {
 		if player == 0 {
-				Coords { row: 13, col: 2 }
+				Coords { row: 12, col: 1 }
 		} else {
-				Coords { row: 13, col: NUM_COLS - 1 }
+				Coords { row: 12, col: NUM_COLS - 2 }
+		}
+}
+
+pub fn defender_coords(player: i32) -> Coords {
+		if player == 0 {
+				Coords { row: 11, col: 2 }
+		} else {
+				Coords { row: 11, col: NUM_COLS - 3 }
 		}
 }
 
@@ -108,7 +116,6 @@ pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> 
 					min_heat = *heat;
 					max_direction = direction;
 				}
-				//println!("{:?} | {:?}", max_direction, heat);
 			},
 			None => continue,
 		}
@@ -119,7 +126,7 @@ pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> 
 /// Finds wall building target for builder bee.
 pub fn find_target(info: &AgentInfo, bee: &Bee, heatmap: &Array2D<f32>, map: &Array2D<Cell>, targets: &Vec<Coords>) -> Option<Coords> {
 	if bee.role.as_ref().unwrap().eq(&Role::Collect) {
-		let flower_coords = find_flower_in_map(map);
+		let flower_coords = find_flower_in_map(map, &bee.position);
 		if flower_coords.is_some() {
 			let flower_target = find_available_adjacent(flower_coords.unwrap(), map);
 			println!("\x1b[96mfind_target(): Returning {:?}\x1b[0m", flower_target);
@@ -174,8 +181,10 @@ pub fn find_flower_in_view(info: &AgentInfo) -> Option<Coords> {
 	None
 }
 
-/// If a flower is in view, return its coordinates.
-pub fn find_flower_in_map(map: &Array2D<Cell>) -> Option<Coords> {
+/// Find nearest flower in map.
+pub fn find_flower_in_map(map: &Array2D<Cell>, bee_coords: &Coords) -> Option<Coords> {
+    let mut result = None;
+    let mut result_dist = 100;
 	for row in 0..NUM_ROWS {
 		for col in 0..NUM_COLS {
 			let cell = map.get(row, col).unwrap();
@@ -184,9 +193,13 @@ pub fn find_flower_in_map(map: &Array2D<Cell>) -> Option<Coords> {
 					row: row,
 					col: col,
 				};
-				return Some(coords)
+                let dist = bee_coords.distance(&coords);
+                if dist < result_dist {
+                    result = Some(coords);
+                    result_dist = dist;
+                }
 			}
 		}
 	}
-	None
+	return result
 }

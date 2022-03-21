@@ -8,7 +8,6 @@ mod utils;
 mod pathfind;
 
 use std::env;
-use std::process;
 use array2d::Array2D;
 use crate::common::{ 
 		Action,
@@ -19,13 +18,10 @@ use crate::common::{
 		Direction,
 		GameState,
 		NUM_COLS,
-		NUM_ROWS,
 		VIEW_DISTANCE
 };
 use crate::bee::*;
 use crate::think::*;
-use crate::simple_agent::*;
-use crate::utils::{ coords_to_dir, print_heatmap };
 use crate::pathfind::*;
 
 /// The main think function of our agent. 
@@ -43,9 +39,8 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 
 	// If the current bee holds a flower, check if the hive is adjacent
 	// and forage the flower to the hive if possible.
-	//let test_coords = Coords { row: 5, col: 5 };
 	if bee.bee_id == 4 {
-		//println!("\x1b[96m\nBee {:?}\x1b[0m", bee.bee_id);
+		println!("\x1b[96m\nBee {:?}\x1b[0m", bee.bee_id);
 	}
 	bee.has_flower = bee_cell.has_flower(); 
 	if bee.has_flower == true {
@@ -88,7 +83,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 		};
 		bee.set_target(None);
 		if bee.bee_id == 4 {
-			//println!("\x1b[96mthink 75: Returning command {:?}\x1b[0m", command);
+			println!("\x1b[96mthink 75: Returning command {:?}\x1b[0m", command);
 		}
 		return command;
 	}
@@ -100,7 +95,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 		if target.is_some() {
 			bee.set_target(target);
 			if bee.bee_id == 4 {
-				//println!("\x1b[96mthink 87: Bee {:?} now has target: {:?}. \x1b[0m", bee.bee_id, target);
+				println!("\x1b[96mthink 87: Bee {:?} now has target: {:?}. \x1b[0m", bee.bee_id, target);
 			}
 		} else {
 			bee.set_target(None); // Probably redundant
@@ -123,11 +118,11 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 
 	// If it's a forager bee, move towards target
 	if bee.role.as_ref().unwrap().eq(&Role::Collect) {
-		//println!("\x1b[96mBee {:?} is a collector. \x1b[0m", bee.bee_id);
+		println!("\x1b[96mBee {:?} is a collector. \x1b[0m", bee.bee_id);
 		let home_hive = hive_coords(info.player);
-		let command: Option<Command> = pathfind(info, &gamestate.map, bee.target.as_ref().unwrap_or(&home_hive));
+		let command: Option<Command> = pathfind_collect(info, &gamestate.map, bee.target.as_ref().unwrap_or(&home_hive));
 		if bee.bee_id == 4 {
-			//println!("\x1b[96mBee target to pathfind: {:?} | Returns command: {:?}. \x1b[0m", bee.target, command);
+			println!("\x1b[96mBee target to pathfind: {:?} | Returns command: {:?}. \x1b[0m", bee.target, command);
 		}
 		match command {
 			Some(v) => return v,
@@ -155,7 +150,7 @@ fn main() {
 
 	let host: &String = args.get(1).unwrap();
 	let port: &String = args.get(2).unwrap();
-	let team_name = "builder-bees\n".to_string();
+	let team_name = "Builder Bees\n".to_string();
 
 	agent::agent_main(host, port, &team_name, think).expect("Program should not exit in agent_main");
 }

@@ -24,8 +24,6 @@ fn send_team_name(stream: &mut TcpStream, team_name: &String) -> Result<()> {
 
 	if message.len() > NET_BUFFER_SIZE { panic!("Team name is too long") };
 
-	//TODO: terminate team name with newline here instead of in main
-
 	stream.write(&message).expect("Agent unable to send team name to arena.");
 	stream.flush()?;
 	Ok(())
@@ -55,9 +53,9 @@ fn send_agent_command(command: Command, stream: &mut TcpStream) -> Result<()> {
 	let mut buffer: FixedBuf<MAX_COMMAND_LEN> = FixedBuf::new();
 	serialize_agent_command(command, &mut buffer);
 
-	let bytes_sent = stream
+	let _bytes_sent = stream
 		.write(&buffer.read_bytes(buffer.len()))
-		.expect("Agent unable to send command to arena."); //TODO: Check if bytes sent is 0
+		.expect("Agent unable to send command to arena.");
 	stream.flush()?;
 	Ok(())
 }
@@ -71,7 +69,7 @@ fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
 	let mut heatmap_initialized = false;
 	loop {
 		let info: AgentInfo = get_agent_info(stream).expect("Game over.");
-		let opponent_col = if info.player == 1 { 1 } else { 29 };
+		let opponent_col = if info.player == 1 { 1 } else { 28 };
 		heatmap = generate_heatmap(NUM_COLS, NUM_ROWS, opponent_col, 12, heatmap_initialized);
 		//print_heatmap(&heatmap);
 		heatmap_initialized = true;
