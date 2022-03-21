@@ -94,7 +94,7 @@ impl GameState {
 	pub fn new() -> Self {
 		Self {
 			map: Map::new(),
-			bees: vec![Bee::new(0, Role::Build), Bee::new(1, Role::Build), Bee::new(2, Role::Build), Bee::new(3, Role::Build), Bee::new(4, Role::Collect)],
+			bees: vec![Bee::new(0, Role::Build), Bee::new(1, Role::Build), Bee::new(2, Role::Build), Bee::new(3, Role::Collect), Bee::new(4, Role::Collect)],
 			strategy: STRATEGY_BUILD_WALLS,
 		}
 	}
@@ -201,7 +201,7 @@ impl Coords {
 			Direction::NE => Some(Coords { row: self.row - 1, col: self.col + 1 }),
 			Direction::E if self.col == NUM_COLS - 1 => None,
 			Direction::E => Some(Coords { row: self.row, col: self.col + 1 }),
-			Direction::SE if self.row == NUM_ROWS - 1 || self.col == NUM_COLS + 1 => None,
+			Direction::SE if self.row == NUM_ROWS - 1 || self.col == NUM_COLS - 1 => None,
 			Direction::SE => Some(Coords { row: self.row + 1, col: self.col + 1 }),
 			Direction::S if self.row == NUM_ROWS + 1 => None,
 			Direction::S => Some(Coords { row: self.row + 1, col: self.col }),

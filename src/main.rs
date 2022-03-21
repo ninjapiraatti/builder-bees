@@ -45,7 +45,7 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	// and forage the flower to the hive if possible.
 	//let test_coords = Coords { row: 5, col: 5 };
 	if bee.bee_id == 4 {
-		println!("\x1b[96m\nBee {:?}\x1b[0m", bee.bee_id);
+		//println!("\x1b[96m\nBee {:?}\x1b[0m", bee.bee_id);
 	}
 	bee.has_flower = bee_cell.has_flower(); 
 	if bee.has_flower == true {
@@ -77,10 +77,10 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	}
 
 	// Is the bee adjacent to its target? If so, do the action.
-	if bee.at_targets_adjacent() && bee.bee_id != 4 {
-		if bee.bee_id == 4 {
-			//println!("\x1b[96mthink 66: Bee {:?} is at target. target: {:?}\x1b[0m", bee.bee_id, bee.target);
-			//println!("\x1b[96mthink 67: Bee {:?} is at {:?}\x1b[0m", bee.bee_id, bee.position);
+	if bee.at_targets_adjacent() && bee.bee_id != 4 && bee.bee_id != 3 { 
+		if bee.bee_id == 4 || bee.bee_id == 3 {
+			println!("\x1b[96mthink 66: Bee {:?} is at target. target: {:?}\x1b[0m", bee.bee_id, bee.target);
+			println!("\x1b[96mthink 67: Bee {:?} is at {:?}\x1b[0m", bee.bee_id, bee.position);
 		}
 		let command = Command {
 			action: bee.action,
@@ -102,6 +102,8 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 			if bee.bee_id == 4 {
 				//println!("\x1b[96mthink 87: Bee {:?} now has target: {:?}. \x1b[0m", bee.bee_id, target);
 			}
+		} else {
+			bee.set_target(None); // Probably redundant
 		}
 	}
 
@@ -113,7 +115,9 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 		let command: Option<Command> = pathfind(info, &gamestate.map, bee.target.as_ref().unwrap_or(&opponent_hive));
 		match command {
 			Some(v) => return v,
-			None => (),
+			None => {
+				bee.set_target(None);
+			},
 		}
 	}
 
@@ -127,7 +131,9 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 		}
 		match command {
 			Some(v) => return v,
-			None => (),
+			None => {
+				bee.set_target(None);
+			},
 		}
 	}
 

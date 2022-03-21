@@ -76,6 +76,9 @@ pub fn find_neighbour(info: &AgentInfo, cell_type: &CellType) -> Option<Directio
 }
 
 pub fn find_available_adjacent(target: Coords, map: &Array2D<Cell>) -> Option<Coords> {
+	if target.col >= NUM_COLS || target.row >= NUM_ROWS {
+		return None;
+	}
 	for direction in Direction::into_enum_iter() {
 		let adjacent = target.adjacent_coord(&direction);
 		match adjacent {
