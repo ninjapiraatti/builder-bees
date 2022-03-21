@@ -120,6 +120,10 @@ impl GameState {
         }
         targets
     }
+
+    pub fn set_strategy(&mut self, strategy: Strategy) {
+        self.strategy = strategy;
+    }
 }
 
 #[derive(Debug)]
@@ -226,6 +230,23 @@ impl Coords {
 	pub fn distance(&self, other: &Coords) -> usize {
 		((self.row as i32 - other.row as i32).abs() + (self.col as i32 - other.col as i32).abs()) as usize
 	}
+
+    pub fn is_near_own_hive(&self, player: i32) -> bool {
+        if player == 0 {
+           if self.col < 10 { return true } else { return false };
+        } else {
+           if self.col > 19 { return true } else { return false };
+        }
+    }
+
+    pub fn view_coords_to_map_coords(&self, info: &AgentInfo) -> Coords {
+        let row_delta = self.row - VIEW_DISTANCE;
+        let col_delta = self.col - VIEW_DISTANCE;
+        let row = info.row as usize + row_delta;
+        let col = info.col as usize + col_delta;
+        if row > NUM_ROWS - 1 || col > NUM_COLS - 1 { panic!("Too big row or col") };
+        Coords { row: row, col: col }
+    }
 }
 
 #[derive(Debug, Clone, Copy)]

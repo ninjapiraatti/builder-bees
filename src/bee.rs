@@ -90,6 +90,15 @@ impl Bee {
 			Role::Sabotage => return Action::GUARD,
 		}
 	}
+
+    pub fn has_role(&self, role: Role) -> bool {
+        match self.role {
+            Some(v) => {
+                if v.eq(&role) { return true } else { return false };
+            },
+            None => return false,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]

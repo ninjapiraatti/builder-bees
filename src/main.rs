@@ -18,7 +18,8 @@ use crate::common::{
 		Direction,
 		GameState,
 		NUM_COLS,
-		VIEW_DISTANCE
+		VIEW_DISTANCE,
+        Strategy
 };
 use crate::bee::*;
 use crate::think::*;
@@ -28,26 +29,30 @@ use crate::pathfind::*;
 pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState) -> Command {
 	let bee_cell = info.cell_type(&Coords { row: VIEW_DISTANCE, col: VIEW_DISTANCE });
 	let targets = gamestate.get_targets();
-	let mut bee = gamestate.bees.get_mut(info.bee as usize).unwrap();
 
-    if info.turn == 1 {
-        gamestate.set_strategy(Strategy::CollectNearby);
+
+    // Check if enemy is near own hive
+    let enemy = find_enemy_in_view(info);
+    match enemy {
+        Some(coords) => gamestate.set_strategy(Strategy::DefensiveBlock),
+        None => (),
     }
+
+	let mut bee = gamestate.bees.get_mut(info.bee as usize).unwrap();
 	bee.set_position(info.row as usize, info.col as usize);
 	bee.check_target(&targets);
 
 	//println!("\x1b[96m\nThere are {:?} targets: {:?}\x1b[0m", targets.len(), targets);
 	//println!("\x1b[96mBee {:?} target: {:?}\x1b[0m", bee.bee_id, bee.target);
 
-
 	//TODO: Function that checks if strategy has to be changed.
 
 	// If the current bee holds a flower, check if the hive is adjacent
 	// and forage the flower to the hive if possible.
-	if bee.bee_id == 4 {
-		println!("\x1b[96m\nBee {:?}\x1b[0m", bee.bee_id);
-	}
-	bee.has_flower = bee_cell.has_flower(); 
+
+	//println!("\x1b[96m\nBee {:?}\x1b[0m", bee.bee_id);
+
+    bee.has_flower = bee_cell.has_flower(); 
 	if bee.has_flower == true {
 		let hive = Some(hive_coords(info.player)).unwrap();
 		bee.target = find_available_adjacent(hive, &gamestate.map.cells);

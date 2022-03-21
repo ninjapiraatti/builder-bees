@@ -203,3 +203,22 @@ pub fn find_flower_in_map(map: &Array2D<Cell>, bee_coords: &Coords) -> Option<Co
 	}
 	return result
 }
+
+/// Find out if an enemy is in view.
+pub fn find_enemy_in_view(info: &AgentInfo) -> Option<Coords> {
+    let enemy = if info.player == 0 { CellType::BEE_1 } else { CellType::BEE_0 };
+	for row in 0..7 {
+		for col in 0..7 {
+			let cell = info.cells.get(row, col).unwrap();
+			if cell.eq(&enemy) {
+				let view_coords = Coords {
+					row: row,
+					col: col,
+				};
+                let map_coords = view_coords.view_coords_to_map_coords(info);
+				return Some(map_coords)
+			}
+		}
+	}
+	None
+}
