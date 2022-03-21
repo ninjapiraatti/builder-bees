@@ -50,8 +50,31 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 	// and forage the flower to the hive if possible.
 
 	//println!("\x1b[96m\nBee {:?}\x1b[0m", bee.bee_id);
+	bee.has_flower = bee_cell.has_flower(); 
 
-    bee.has_flower = bee_cell.has_flower(); 
+	if bee.role.as_ref().unwrap().eq(&Role::Defender) {
+		bee.target = Some(defender_coords(info.player));
+		if bee.position == bee.target.unwrap() {
+			let hive_direction = find_neighbour(info, &hive_cell(info.player));
+			if bee.has_flower == true {
+				match hive_direction {
+					Some(v) => {
+						return Command {
+						action: Action::FORAGE,
+						direction: v,
+						};
+					},
+					None => (),
+				}
+			} else {
+				return Command {
+				action: Action::GUARD,
+				direction: Direction::NW,
+				};
+			}
+		}
+	}
+  
 	if bee.has_flower == true {
 		println!("\x1b[93mBee {:?} has a flower.\x1b[0m", bee.bee_id);
 		let hive = Some(hive_coords(info.player)).unwrap();
@@ -135,6 +158,17 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
 		if bee.bee_id == 4 {
 			println!("\x1b[96mBee target to pathfind: {:?} | Returns command: {:?}. \x1b[0m", bee.target, command);
 		}
+		match command {
+			Some(v) => return v,
+			None => {
+				bee.set_target(None);
+			},
+		}
+	}
+
+	if bee.role.as_ref().unwrap().eq(&Role::Defender) {
+		let defend_pos = defender_coords(info.player);
+		let command: Option<Command> = pathfind_collect(info, &gamestate.map, bee.target.as_ref().unwrap_or(&defend_pos));
 		match command {
 			Some(v) => return v,
 			None => {

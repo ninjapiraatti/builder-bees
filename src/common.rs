@@ -94,7 +94,7 @@ impl GameState {
 	pub fn new() -> Self {
 		Self {
 			map: Map::new(),
-			bees: vec![Bee::new(0, Role::Build), Bee::new(1, Role::Build), Bee::new(2, Role::Build), Bee::new(3, Role::Collect), Bee::new(4, Role::Collect)],
+			bees: vec![Bee::new(0, Role::Build), Bee::new(1, Role::Build), Bee::new(2, Role::Build), Bee::new(3, Role::Defender), Bee::new(4, Role::Collect)],
 			strategy: Strategy::CollectNearby,
 		}
 	}
