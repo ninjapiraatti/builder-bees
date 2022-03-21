@@ -89,10 +89,20 @@ pub fn think(info: &AgentInfo, heatmap: &Array2D<f32>, gamestate: &mut GameState
   
 	if bee.has_flower == true {
 		//println!("\x1b[93mBee {:?} has a flower.\x1b[0m", bee.bee_id);
-		let hive = Some(dropoff_coords(info.player)).unwrap();
-		bee.target = find_available_adjacent(hive, &gamestate.map.cells);
+		let dropoff = Some(dropoff_coords(info.player)).unwrap();
+		bee.target = find_available_adjacent(dropoff, &gamestate.map.cells);
 		//println!("\x1b[93mTarget: {:?}\x1b[0m", bee.target);
 		let dropoff_direction = coords_to_dir(bee.position, dropoff_coords(info.player));
+		let hive_direction = find_neighbour(info, &hive_cell(info.player));
+		match hive_direction {
+			Some(v) => {
+				return Command {
+					action: Action::FORAGE,
+					direction: v,
+				};
+			},
+			None => (),
+		}
 		if bee.at_targets_adjacent() { 
 			return Command {
 				action: Action::FORAGE,
