@@ -126,6 +126,9 @@ pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> 
 /// Finds wall building target for builder bee.
 pub fn find_target(info: &AgentInfo, bee: &Bee, heatmap: &Array2D<f32>, map: &Array2D<Cell>, targets: &Vec<Coords>) -> Option<Coords> {
 	if bee.role.as_ref().unwrap().eq(&Role::Collect) {
+		if bee.has_flower == true {
+			return Some(hive_coords(info.player));
+		}
 		let flower_coords = find_flower_in_map(map, &bee.position);
 		if flower_coords.is_some() {
 			let flower_target = find_available_adjacent(flower_coords.unwrap(), map);
