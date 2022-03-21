@@ -42,9 +42,17 @@ pub fn defender_coords(player: i32) -> Coords {
 
 pub fn dropoff_coords(player: i32) -> Coords {
 		if player == 0 {
-				Coords { row: 10, col: 3 }
+				Coords { row: 11, col: 2 }
 		} else {
-				Coords { row: 10, col: NUM_COLS - 4 }
+				Coords { row: 11, col: NUM_COLS - 3 }
+		}
+}
+
+pub fn defend_direction(player: i32) -> Direction {
+		if player == 0 {
+				Direction::NE
+		} else {
+				Direction::NW
 		}
 }
 
@@ -135,7 +143,7 @@ pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> 
 pub fn find_target(info: &AgentInfo, bee: &Bee, heatmap: &Array2D<f32>, map: &Array2D<Cell>, targets: &Vec<Coords>) -> Option<Coords> {
 	if bee.role.as_ref().unwrap().eq(&Role::Collect) {
 		if bee.has_flower == true {
-			return Some(hive_coords(info.player));
+			return Some(dropoff_coords(info.player));
 		}
 		let flower_coords = find_flower_in_map(map, &bee.position);
 		if flower_coords.is_some() {
