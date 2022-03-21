@@ -327,6 +327,14 @@ impl CellType {
 			false
 		}
 	}
+
+	pub fn is_bee(&self) -> bool {
+		if self.eq(&CellType::BEE_0) || self.eq(&CellType::BEE_1) {
+			true
+		} else {
+			false
+		}
+	}
 }
 
 impl TryFrom<i32> for CellType {

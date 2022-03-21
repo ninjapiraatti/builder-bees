@@ -151,7 +151,7 @@ pub fn find_target(info: &AgentInfo, bee: &Bee, heatmap: &Array2D<f32>, map: &Ar
 	for row in 0..NUM_ROWS {
 		'cols: for col in 0..NUM_COLS {
 			let cell = map.get(row, col).unwrap();
-			if cell.celltype.eq(&CellType::WALL) || cell.celltype.is_hive() { continue; };
+			if cell.celltype.eq(&CellType::WALL) || cell.celltype.is_hive() || cell.celltype.is_bee() { continue; };
 			let current = Coords { row: row, col: col };
 			for target in targets {
 				if target.row == current.row && target.col == current.col {
