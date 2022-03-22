@@ -32,36 +32,11 @@ pub fn hive_coords(player: i32) -> Coords {
 		}
 }
 
-/// Returns the hive coords of the opponent
-pub fn opponent_hive_coords(player: i32) -> Coords {
-		if player == 1 {
-				Coords { row: 12, col: 1 }
-		} else {
-				Coords { row: 12, col: NUM_COLS - 2 }
-		}
-}
-
 pub fn defender_coords(player: i32) -> Coords {
 		if player == 0 {
 				Coords { row: 11, col: 2 }
 		} else {
 				Coords { row: 11, col: NUM_COLS - 3 }
-		}
-}
-
-pub fn dropoff_coords(player: i32) -> Coords {
-		if player == 0 {
-				Coords { row: 11, col: 2 }
-		} else {
-				Coords { row: 11, col: NUM_COLS - 3 }
-		}
-}
-
-pub fn defend_direction(player: i32) -> Direction {
-		if player == 0 {
-				Direction::NE
-		} else {
-				Direction::NW
 		}
 }
 
@@ -152,7 +127,7 @@ pub fn find_heat(info: &AgentInfo, heatmap: &Array2D<f32>) -> Option<Direction> 
 pub fn find_target(info: &AgentInfo, bee: &Bee, heatmap: &Array2D<f32>, map: &Array2D<Cell>, targets: &Vec<Coords>) -> Option<Coords> {
 	if bee.role.as_ref().unwrap().eq(&Role::Collect) {
 		if bee.has_flower == true {
-			return Some(dropoff_coords(info.player));
+			return Some(hive_coords(info.player));
 		}
 		let flower_coords = find_flower_in_map(map, &bee.position);
 		if flower_coords.is_some() {
@@ -168,7 +143,7 @@ pub fn find_target(info: &AgentInfo, bee: &Bee, heatmap: &Array2D<f32>, map: &Ar
 	for row in 0..NUM_ROWS {
 		'cols: for col in 0..NUM_COLS {
 			let cell = map.get(row, col).unwrap();
-			if cell.celltype.eq(&CellType::WALL) || cell.celltype.is_hive() || cell.celltype.is_bee() { continue; };
+			if cell.celltype.eq(&CellType::WALL) || cell.celltype.is_hive() { continue; };
 			let current = Coords { row: row, col: col };
 			for target in targets {
 				if target.row == current.row && target.col == current.col {
@@ -249,26 +224,4 @@ pub fn find_enemy_in_view(info: &AgentInfo) -> Option<Coords> {
 		}
 	}
 	None
-}
-
-pub fn find_build_position(bee: i32, player: i32) -> Option<Coords> {
-    let mut coords = None;
-    if player == 0 {
-        if bee == 0 {
-            coords = Some(Coords { row: 11, col: NUM_COLS - 1 });
-        } else if bee == 1 {
-            coords = Some(Coords { row: 12, col: NUM_COLS - 3 });
-        } else if bee == 2 {
-            coords = Some(Coords { row: 13, col: NUM_COLS - 1 });
-        }
-    } else {
-        if bee == 0 {
-            coords = Some(Coords { row: 11, col: 0 });
-        } else if bee == 1 {
-            coords = Some(Coords { row: 12, col: 2 });
-        } else if bee == 2 {
-            coords = Some(Coords { row: 13, col: 0 });
-        }
-    } 
-    coords
 }

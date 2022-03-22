@@ -74,10 +74,10 @@ fn run(stream: &mut TcpStream, think: ThinkFunction) -> Result<()> {
 		//print_heatmap(&heatmap);
 		heatmap_initialized = true;
 		//println!("{:?}", info);
-		//println!("\n{:?}", info.turn);
+		println!("\n{:?}", info.turn);
 		gamestate.update(&info);
 		let command: Command = think(&info, &heatmap, &mut gamestate);
-		//println!("{:?}", command);
+		println!("{:?}", command);
 		send_agent_command(command, stream)?;
 		//print_map(&gamestate.map);
 	}

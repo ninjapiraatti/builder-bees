@@ -94,7 +94,7 @@ impl GameState {
 	pub fn new() -> Self {
 		Self {
 			map: Map::new(),
-			bees: vec![Bee::new(0, Role::Build), Bee::new(1, Role::Build), Bee::new(2, Role::Build), Bee::new(3, Role::Defender), Bee::new(4, Role::Collect)],
+			bees: vec![Bee::new(0, Role::Build), Bee::new(1, Role::Build), Bee::new(2, Role::Build), Bee::new(3, Role::Collect), Bee::new(4, Role::Collect)],
 			strategy: Strategy::CollectNearby,
 		}
 	}
@@ -322,14 +322,6 @@ impl CellType {
 
 	pub fn is_hive(&self) -> bool {
 		if self.eq(&CellType::HIVE_0) || self.eq(&CellType::HIVE_1) {
-			true
-		} else {
-			false
-		}
-	}
-
-	pub fn is_bee(&self) -> bool {
-		if self.eq(&CellType::BEE_0) || self.eq(&CellType::BEE_1) {
 			true
 		} else {
 			false
